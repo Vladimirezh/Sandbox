@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="akarnokd.reactive_extensions" Version="0.0.26-alpha"/>
         <PackageReference Include="System.Reactive" Version="4.1.2"/>
     </ItemGroup>
 
