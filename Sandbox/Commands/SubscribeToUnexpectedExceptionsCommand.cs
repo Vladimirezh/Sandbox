@@ -3,7 +3,7 @@ using System;
 namespace Sandbox.Commands
 {
     [Serializable]
-    public class SubscribeToUnexpectedExceptionsCommand : Command
+    public class SubscribeToUnexpectedExceptionsCommand : Message
     {
     }
 }

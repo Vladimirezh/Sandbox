@@ -4,7 +4,7 @@ using Sandbox.Common;
 namespace Sandbox.Commands
 {
     [Serializable]
-    public class CreateObjectOfTypeCommad : Command
+    public class CreateObjectOfTypeCommad : Message
     {
         public CreateObjectOfTypeCommad(string typeFullName, string assemblyPath)
         {

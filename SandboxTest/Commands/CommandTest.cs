@@ -9,7 +9,7 @@ namespace SandboxTest.Commands
         public void AllCallsCtorMustIncrementNumber()
         {
             for (var i = 0; i < 100; i++)
-                Assert.Equal(i + 1, new Command().Number);
+                Assert.Equal(i + 1, new Message().Number);
         }
     }
 }

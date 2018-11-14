@@ -16,14 +16,14 @@ namespace Sandbox.Server
         private IDisposable commandsSubscription;
         private static ProxyGenerator _proxyGenerator;
 
-        public SandboxServer(IObservable<Command> messagesObservable, IPublisher<Command> messagePublisher)
+        public SandboxServer(IObservable<Message> messagesObservable, IPublisher<Message> messagePublisher)
         {
             Guard.IsInterface<TInterface>();
             Guard.NotNull(messagePublisher);
             Guard.NotNull(messagesObservable);
 
             _proxyGenerator = new ProxyGenerator();
-            Instance = _proxyGenerator.CreateInterfaceProxyWithoutTarget<TInterface>(new ServerInvocationHandler());
+            Instance = _proxyGenerator.CreateInterfaceProxyWithoutTarget<TInterface>(new ServerInvocationHandler(messagesObservable,messagePublisher));
             commandsSubscription = messagesObservable.Subscribe(ExecuteCommand);
             messagePublisher.Publish(new SubscribeToUnexpectedExceptionsCommand());
             messagePublisher.Publish(new CreateObjectOfTypeCommad(typeof(TObject).FullName,
@@ -32,7 +32,7 @@ namespace Sandbox.Server
 
         public TInterface Instance { get; }
 
-        private void ExecuteCommand(Command it)
+        private void ExecuteCommand(Message it)
         {
         }
     }
