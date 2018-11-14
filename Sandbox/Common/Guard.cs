@@ -13,6 +13,12 @@ namespace Sandbox.Common
             return val;
         }
 
+        public static void IsInterface<T>()
+        {
+            if (!typeof(T).IsInterface)
+                throw new ArgumentException($"{typeof(T).FullName} must be interface");
+        }
+
         public static T NotNull<T>(T val)
         {
             if (val == null)

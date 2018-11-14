@@ -8,10 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using akarnokd.reactive_extensions;
 using Sandbox.Common;
+using Sandbox.Server;
 
 namespace Sandbox
 {
-    public class NamedPipeServer : IObservable<byte[]>, IDisposable
+    public class NamedPipeServer : IObservable<byte[]>, IDisposable, IPublisher<byte[]>
     {
         private readonly INamedPipeStreamFactory streamFactory;
         public string Address { get; }
@@ -64,7 +65,7 @@ namespace Sandbox
         {
             var messageToSend = new byte[message.Length + sizeof(int)];
             Array.Copy(BitConverter.GetBytes(message.Length), messageToSend, sizeof(int));
-            Array.Copy(message, 0, messageToSend, sizeof(int) , message.Length);
+            Array.Copy(message, 0, messageToSend, sizeof(int), message.Length);
             await stream.WriteAsync(messageToSend, 0, messageToSend.Length, cancellationToken);
         }
 
