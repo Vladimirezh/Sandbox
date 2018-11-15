@@ -11,22 +11,20 @@ using Xunit;
 
 namespace SandboxTest.InvocationHandler
 {
-    public class ServerInvocationHandlerTest
+    public class ServerProxyTest
     {
         private Mock<IPublisher<Message>> publisher;
-        private ServerInvocationHandler serverInvocationHandler;
         private Subject<Message> commandsObservable = new Subject<Message>();
         private ITestClass instance;
         private Action<Message> answerCallback;
 
-        public ServerInvocationHandlerTest()
+        public ServerProxyTest()
         {
             answerCallback = PostEmptyAnswerTo;
             publisher = new Mock<IPublisher<Message>>();
             publisher.Setup(it => it.Publish(It.IsAny<Message>())).Callback<Message>(it => answerCallback?.Invoke(it));
 
-            serverInvocationHandler = new ServerInvocationHandler(commandsObservable, publisher.Object);
-            instance = new ProxyGenerator().CreateInterfaceProxyWithoutTarget<ITestClass>(serverInvocationHandler);
+            instance = ServerProxy<ITestClass>.Create(commandsObservable, publisher.Object);
         }
 
         private void PostEmptyAnswerTo(Message message)

@@ -6,8 +6,13 @@
 
     <ItemGroup>
         <PackageReference Include="akarnokd.reactive_extensions" Version="0.0.26-alpha"/>
-        <PackageReference Include="Castle.Core" Version="4.3.1"/>
         <PackageReference Include="System.Reactive" Version="4.1.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="System.Reflection.DispatchProxy, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+            <HintPath>..\..\..\..\..\usr\share\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.1.0\ref\netcoreapp2.1\System.Reflection.DispatchProxy.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>

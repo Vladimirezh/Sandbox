@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Sandbox;
 using Sandbox.Commands;
 using Sandbox.Server;
+using SandboxTest.Common;
 using SandboxTest.Instances;
 using Xunit;
 
@@ -18,15 +21,6 @@ namespace SandboxTest.Server
             var observableCommands = new Mock<IObservable<Message>>();
             new SandboxServer<ITestClass, TestClass>(observableCommands.Object, Mock.Of<IPublisher<Message>>());
             observableCommands.Verify(it => it.Subscribe(It.IsAny<IObserver<Message>>()), Times.AtLeastOnce);
-        }
-
-        [Fact]
-        public void TestServerMustPublishSubscribeToUnexpectedExceptions()
-        {
-            var publisher = new Mock<IPublisher<Message>>();
-            new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object);
-            publisher.Verify(it => it.Publish(It.Is<Message>(c => c is SubscribeToUnexpectedExceptionsCommand)),
-                Times.Once);
         }
 
         [Fact]
@@ -53,6 +47,56 @@ namespace SandboxTest.Server
         {
             Assert.NotNull(new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(),
                 Mock.Of<IPublisher<Message>>()).Instance);
+        }
+
+        [Fact]
+        public void TestUnexpectedExceptionMessageReceive()
+        {
+            var messagesObservable = new Subject<Message>();
+            var server = new SandboxServer<ITestClass, TestClass>(messagesObservable,
+                Mock.Of<IPublisher<Message>>());
+            var exceptions = new List<Exception>();
+            server.UnexpectedExceptionHandler.Subscribe(ex => exceptions.Add(ex));
+            messagesObservable.OnNext(new UnexpectedExceptionMessage {Exception = new TestException()});
+            Assert.Equal(1, exceptions.Count);
+            Assert.True(exceptions[0] is TestException);
+        }
+
+        [Fact]
+        public void TestRevolveHandledAssemblyMessage()
+        {
+            var publisher = new Mock<IPublisher<Message>>();
+            var messagesObservable = new Subject<Message>();
+            new SandboxServer<ITestClass, TestClass>(messagesObservable, publisher.Object);
+            var assemblyResolveMessage = new AssemblyResolveMessage
+                {RequestingAssemblyFullName = GetType().Assembly.FullName};
+            messagesObservable.OnNext(assemblyResolveMessage);
+            publisher.Verify(it => it.Publish(It.Is<AssemblyResolveAnswer>(asa =>
+                asa.Handled && asa.AnswerTo == assemblyResolveMessage.Number &&
+                asa.Location == GetType().Assembly.Location)));
+        }
+
+        [Fact]
+        public void TestRevolveUnhandledAssemblyMessage()
+        {
+            var publisher = new Mock<IPublisher<Message>>();
+            var messagesObservable = new Subject<Message>();
+            new SandboxServer<ITestClass, TestClass>(messagesObservable, publisher.Object);
+            var assemblyResolveMessage = new AssemblyResolveMessage
+                {RequestingAssemblyFullName = "UnknownAssembly"};
+            messagesObservable.OnNext(assemblyResolveMessage);
+            publisher.Verify(it => it.Publish(It.Is<AssemblyResolveAnswer>(asa =>
+                !asa.Handled && asa.AnswerTo == assemblyResolveMessage.Number &&
+                asa.Location == null)));
+            publisher.Verify(it => it.Publish(It.IsAny<TerminateCommand>()), Times.Once);
+        }
+
+        [Fact]
+        public void TestDisposeMustPublishTerminateCommand()
+        {
+            var publisher = new Mock<IPublisher<Message>>();
+            new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object).Dispose();
+            publisher.Verify(it => it.Publish(It.IsAny<TerminateCommand>()), Times.Once);
         }
     }
 }
