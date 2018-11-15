@@ -27,7 +27,15 @@ namespace Sandbox.InvocationHandlers
                 var task = new TaskCompletionSource<object>();
                 using (_messagesObservable.OfType<MethodCallResultAnswer>()
                     .Where(it => it.AnswerTo == methodCallCommand.Number).Take(1)
-                    .Subscribe(it => task.SetResult(it.Result), ex => task.SetException(ex),
+                    .Subscribe(it =>
+                        {
+                            if (it.Exception != null)
+                            {
+                                task.SetException(it.Exception);
+                            }
+                            else
+                                task.SetResult(it.Result);
+                        }, ex => task.SetException(ex),
                         () =>
                         {
                             if (task.Task.Status == TaskStatus.Running)
@@ -37,6 +45,10 @@ namespace Sandbox.InvocationHandlers
                     _messagePublisher.Publish(methodCallCommand);
                     return task.Task.Result;
                 }
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
             }
             catch (Exception ex)
             {

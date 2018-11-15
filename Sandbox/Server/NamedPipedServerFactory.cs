@@ -40,6 +40,11 @@ namespace Sandbox.Server
             {
                 return stream.WriteAsync(buffer, offset, count, cancellationToken);
             }
+
+            public Task FlushAsync(CancellationToken cancellationToken)
+            {
+                return stream.FlushAsync(cancellationToken);
+            }
         }
     }
 }

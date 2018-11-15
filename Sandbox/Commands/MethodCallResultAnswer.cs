@@ -7,5 +7,6 @@ namespace Sandbox.Commands
     {
         public object Result { get; set; }
         public int AnswerTo { get; set; }
+        public Exception Exception { get; set; }
     }
 }

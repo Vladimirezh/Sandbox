@@ -1,7 +1,7 @@
 using Sandbox.Commands;
 using Sandbox.Serializer;
 
-namespace Sandbox.Server
+namespace Sandbox.Common
 {
     public class PublishedMessagesFormatter : IPublisher<Message>
     {

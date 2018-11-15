@@ -6,6 +6,7 @@ using Moq;
 using Sandbox;
 using Sandbox.Commands;
 using Sandbox.InvocationHandlers;
+using SandboxTest.Common;
 using SandboxTest.Instances;
 using Xunit;
 
@@ -65,6 +66,14 @@ namespace SandboxTest.InvocationHandler
             answerCallback = message => commandsObservable.OnNext(new MethodCallResultAnswer
                 {AnswerTo = message.Number, Result = intResult});
             Assert.Equal(intResult, instance.ReturnIntValue());
+        }
+
+        [Fact]
+        public void TestCallMethodWithThrowException()
+        {
+            answerCallback = message => commandsObservable.OnNext(new MethodCallResultAnswer
+                {AnswerTo = message.Number, Exception = new TestException()});
+            Assert.Throws<TestException>(() => instance.VoidMethod());
         }
     }
 }
