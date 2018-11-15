@@ -58,7 +58,7 @@ namespace SandboxTest.Server
             var exceptions = new List<Exception>();
             server.UnexpectedExceptionHandler.Subscribe(ex => exceptions.Add(ex));
             messagesObservable.OnNext(new UnexpectedExceptionMessage {Exception = new TestException()});
-            Assert.Equal(1, exceptions.Count);
+            Assert.Single(exceptions);
             Assert.True(exceptions[0] is TestException);
         }
 

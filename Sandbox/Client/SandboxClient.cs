@@ -25,8 +25,8 @@ namespace Sandbox.Client
             switch (message)
             {
                 case CreateObjectOfTypeCommad co:
-                    Assembly.Load(co.AssemblyPath);
-                    _instance = Activator.CreateInstance(Type.GetType(co.TypeFullName));
+                    var type = Assembly.LoadFile(co.AssemblyPath).GetType(co.TypeFullName);
+                    _instance = Activator.CreateInstance(type);
                     break;
                 case MethodCallCommand mcc:
                     try

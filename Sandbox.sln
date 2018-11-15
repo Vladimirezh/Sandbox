@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandboxTest", "SandboxTest\SandboxTest.csproj", "{1FEFBD23-AE43-4B6D-9A6D-C80D1A85D9B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppServerPlayground", "ConsoleAppServerPlayground\ConsoleAppServerPlayground.csproj", "{1FA81530-83B5-4E21-AF73-A42456F85FEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppClientPlayground", "ConsoleAppClientPlayground\ConsoleAppClientPlayground.csproj", "{117D0EB4-F03A-4EAB-974D-ECA8FF214FCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{1FEFBD23-AE43-4B6D-9A6D-C80D1A85D9B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FEFBD23-AE43-4B6D-9A6D-C80D1A85D9B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FEFBD23-AE43-4B6D-9A6D-C80D1A85D9B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FA81530-83B5-4E21-AF73-A42456F85FEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA81530-83B5-4E21-AF73-A42456F85FEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA81530-83B5-4E21-AF73-A42456F85FEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA81530-83B5-4E21-AF73-A42456F85FEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{117D0EB4-F03A-4EAB-974D-ECA8FF214FCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{117D0EB4-F03A-4EAB-974D-ECA8FF214FCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{117D0EB4-F03A-4EAB-974D-ECA8FF214FCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{117D0EB4-F03A-4EAB-974D-ECA8FF214FCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -33,27 +33,31 @@ namespace Sandbox.Client
             var publisher = new PublishedMessagesFormatter(server, serializer);
             var observable = server.Select(it => serializer.Deserialize(it));
             AppDomain.CurrentDomain.UnhandledException += (s, e) => CurrentDomainOnUnhandledException(e, publisher);
-            AppDomain.CurrentDomain.AssemblyResolve += (s, e) => ResolveAssembly(s, e, observable, publisher);
+            AppDomain.CurrentDomain.AssemblyResolve += (s, e) => ResolveAssembly(e, observable, publisher);
             observable.OfType<TerminateCommand>().Subscribe(it => Environment.Exit(0));
 
             return new SandboxClient(observable, publisher);
         }
 
-        private Assembly ResolveAssembly(object sender, ResolveEventArgs args, IObservable<Message> observable,
+        private Assembly ResolveAssembly(ResolveEventArgs args, IObservable<Message> observable,
             PublishedMessagesFormatter publisher)
         {
+            Console.WriteLine(args.RequestingAssembly);
+            if (args.RequestingAssembly == null)
+                return null;
             var resolveMessage = new AssemblyResolveMessage
                 {RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name};
             var task = new TaskCompletionSource<AssemblyResolveAnswer>();
             using (observable.OfType<AssemblyResolveAnswer>()
                 .Where(it => it.AnswerTo == resolveMessage.Number).Take(1)
-                .Subscribe(it => task.SetResult(it))) ;
+                .Subscribe(it => task.SetResult(it)))
             {
                 publisher.Publish(resolveMessage);
                 var answer = task.Task.Result;
                 if (answer.Handled)
                     return Assembly.LoadFile(answer.Location);
             }
+
             return null;
         }
 
@@ -79,7 +83,7 @@ namespace Sandbox.Client
 
             public NamedPipeSandboxClientStream(string address)
             {
-                stream = new NamedPipeClientStream(address, Guid.NewGuid().ToString(), PipeDirection.InOut,
+                stream = new NamedPipeClientStream(".", address, PipeDirection.InOut,
                     PipeOptions.Asynchronous);
             }
 
