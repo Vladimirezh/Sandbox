@@ -1,4 +1,5 @@
 using System;
+using Sandbox.Common;
 
 namespace Sandbox.Commands
 {
@@ -10,7 +11,7 @@ namespace Sandbox.Commands
 
         public MethodCallCommand(string methodName, object[] arguments)
         {
-            MethodName = methodName;
+            MethodName = Guard.NotNullOrEmpty(methodName, nameof(methodName));
             Arguments = arguments;
         }
     }

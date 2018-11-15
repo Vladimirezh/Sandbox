@@ -7,7 +7,7 @@ using Sandbox.InvocationHandlers;
 
 namespace Sandbox.Server
 {
-    public class SandboxServer<TInterface, TObject> : IDisposable
+    public class Sandbox<TInterface, TObject> : IDisposable
         where TInterface : class
         where TObject : class, TInterface, new()
     {
@@ -15,7 +15,7 @@ namespace Sandbox.Server
         private readonly IPublisher<Message> _messagePublisher;
         private readonly IDisposable _commandsSubscription;
 
-        public SandboxServer(IObservable<Message> messagesObservable, IPublisher<Message> messagePublisher)
+        public Sandbox(IObservable<Message> messagesObservable, IPublisher<Message> messagePublisher)
         {
             _messagePublisher = messagePublisher;
             Guard.IsInterface<TInterface>();

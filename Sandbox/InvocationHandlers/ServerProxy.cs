@@ -25,7 +25,7 @@ namespace Sandbox.InvocationHandlers
             {
                 var methodCallCommand = new MethodCallCommand(targetMethod.Name, args);
                 var task = new TaskCompletionSource<object>();
-                using (_messagesObservable.OfType<MethodCallInvokeResultAnswer>()
+                using (_messagesObservable.OfType<MethodCallResultAnswer>()
                     .Where(it => it.AnswerTo == methodCallCommand.Number).Take(1)
                     .Subscribe(it => task.SetResult(it.Result), ex => task.SetException(ex),
                         () =>

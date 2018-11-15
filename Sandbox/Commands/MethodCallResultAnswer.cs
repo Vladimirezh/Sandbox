@@ -1,6 +1,9 @@
+using System;
+
 namespace Sandbox.Commands
 {
-    public class MethodCallInvokeResultAnswer : Message
+    [Serializable]
+    public class MethodCallResultAnswer : Message
     {
         public object Result { get; set; }
         public int AnswerTo { get; set; }

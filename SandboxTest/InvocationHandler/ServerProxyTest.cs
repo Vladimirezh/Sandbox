@@ -29,7 +29,7 @@ namespace SandboxTest.InvocationHandler
 
         private void PostEmptyAnswerTo(Message message)
         {
-            commandsObservable.OnNext(new MethodCallInvokeResultAnswer {AnswerTo = message.Number});
+            commandsObservable.OnNext(new MethodCallResultAnswer {AnswerTo = message.Number});
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace SandboxTest.InvocationHandler
         public void TestCallMethodWithReturnValueWithoutParameters()
         {
             const int intResult = 5;
-            answerCallback = message => commandsObservable.OnNext(new MethodCallInvokeResultAnswer
+            answerCallback = message => commandsObservable.OnNext(new MethodCallResultAnswer
                 {AnswerTo = message.Number, Result = intResult});
             Assert.Equal(intResult, instance.ReturnIntValue());
         }

@@ -13,13 +13,13 @@ using Xunit;
 
 namespace SandboxTest.Server
 {
-    public class SandboxServerTest
+    public class SandboxTest
     {
         [Fact]
         public void TestServerMustSubscribeToCommands()
         {
             var observableCommands = new Mock<IObservable<Message>>();
-            new SandboxServer<ITestClass, TestClass>(observableCommands.Object, Mock.Of<IPublisher<Message>>());
+            new Sandbox<ITestClass, TestClass>(observableCommands.Object, Mock.Of<IPublisher<Message>>());
             observableCommands.Verify(it => it.Subscribe(It.IsAny<IObserver<Message>>()), Times.AtLeastOnce);
         }
 
@@ -27,7 +27,7 @@ namespace SandboxTest.Server
         public void TestServerMustPublishCreateObjectOfTypeCommand()
         {
             var publisher = new Mock<IPublisher<Message>>();
-            new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object);
+            new Sandbox<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object);
             publisher.Verify(it => it.Publish(It.Is<Message>(c =>
                 c is CreateObjectOfTypeCommad &&
                 (c as CreateObjectOfTypeCommad).AssemblyPath == typeof(TestClass).Assembly.Location &&
@@ -38,14 +38,14 @@ namespace SandboxTest.Server
         public void TestFirstGenericParameterMustBeInterface()
         {
             Assert.Throws<ArgumentException>(() =>
-                new SandboxServer<TestClass, TestClass>(Mock.Of<IObservable<Message>>(),
+                new Sandbox<TestClass, TestClass>(Mock.Of<IObservable<Message>>(),
                     Mock.Of<IPublisher<Message>>()));
         }
 
         [Fact]
         public void TestInstanceMustBeNotNullAfterServerCreation()
         {
-            Assert.NotNull(new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(),
+            Assert.NotNull(new Sandbox<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(),
                 Mock.Of<IPublisher<Message>>()).Instance);
         }
 
@@ -53,7 +53,7 @@ namespace SandboxTest.Server
         public void TestUnexpectedExceptionMessageReceive()
         {
             var messagesObservable = new Subject<Message>();
-            var server = new SandboxServer<ITestClass, TestClass>(messagesObservable,
+            var server = new Sandbox<ITestClass, TestClass>(messagesObservable,
                 Mock.Of<IPublisher<Message>>());
             var exceptions = new List<Exception>();
             server.UnexpectedExceptionHandler.Subscribe(ex => exceptions.Add(ex));
@@ -67,7 +67,7 @@ namespace SandboxTest.Server
         {
             var publisher = new Mock<IPublisher<Message>>();
             var messagesObservable = new Subject<Message>();
-            new SandboxServer<ITestClass, TestClass>(messagesObservable, publisher.Object);
+            new Sandbox<ITestClass, TestClass>(messagesObservable, publisher.Object);
             var assemblyResolveMessage = new AssemblyResolveMessage
                 {RequestingAssemblyFullName = GetType().Assembly.FullName};
             messagesObservable.OnNext(assemblyResolveMessage);
@@ -81,7 +81,7 @@ namespace SandboxTest.Server
         {
             var publisher = new Mock<IPublisher<Message>>();
             var messagesObservable = new Subject<Message>();
-            new SandboxServer<ITestClass, TestClass>(messagesObservable, publisher.Object);
+            new Sandbox<ITestClass, TestClass>(messagesObservable, publisher.Object);
             var assemblyResolveMessage = new AssemblyResolveMessage
                 {RequestingAssemblyFullName = "UnknownAssembly"};
             messagesObservable.OnNext(assemblyResolveMessage);
@@ -95,7 +95,7 @@ namespace SandboxTest.Server
         public void TestDisposeMustPublishTerminateCommand()
         {
             var publisher = new Mock<IPublisher<Message>>();
-            new SandboxServer<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object).Dispose();
+            new Sandbox<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object).Dispose();
             publisher.Verify(it => it.Publish(It.IsAny<TerminateCommand>()), Times.Once);
         }
     }
