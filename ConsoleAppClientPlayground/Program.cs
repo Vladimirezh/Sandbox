@@ -1,11 +1,7 @@
 ﻿using System;
-using System.IO.Pipes;
-using System.Reflection;
-using System.Threading.Tasks;
 using Sandbox.Client;
 using Sandbox.Commands;
 using Sandbox.Serializer;
-using Sandbox.Server;
 
 namespace ConsoleAppClientPlayground
 {

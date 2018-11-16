@@ -1,34 +1,38 @@
 using System;
-using System.Diagnostics;
-using System.IO.Pipes;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using akarnokd.reactive_extensions;
 using Sandbox.Common;
-using Sandbox.Server;
 
 namespace Sandbox
 {
     public class NamedPipeServer : IObservable<byte[]>, IDisposable, IPublisher<byte[]>
     {
-        private readonly INamedPipeStreamFactory streamFactory;
-        public string Address { get; }
-        private readonly IObservable<byte[]> serverObservable;
         private static EventLoopScheduler _scheduler = new EventLoopScheduler();
         private readonly UnicastSubject<byte[]> publishSubject = new UnicastSubject<byte[]>();
+        private readonly IObservable<byte[]> serverObservable;
+        private readonly INamedPipeStreamFactory streamFactory;
 
         public NamedPipeServer(INamedPipeStreamFactory streamFactory, string address)
         {
-            Console.WriteLine("TETSTSTST");
             this.streamFactory = Guard.NotNull(streamFactory);
             Address = Guard.NotNullOrEmpty(address, nameof(address));
             serverObservable = Observable.Create<byte[]>((observer, token) => Start(observer, token))
                 .Publish()
                 .RefCount();
+        }
+
+        public string Address { get; }
+
+        public void Dispose()
+        {
+            publishSubject?.OnCompleted();
+        }
+
+        public IDisposable Subscribe(IObserver<byte[]> observer)
+        {
+            return serverObservable.Subscribe(observer);
         }
 
         public void Publish(byte[] message)
@@ -41,9 +45,7 @@ namespace Sandbox
             var length = new byte[sizeof(int)];
             using (var stream = streamFactory.CreateStream(Address))
             {
-                Console.WriteLine("Before connected " + Address);
                 await stream.ConnectionAsync(token);
-                Console.WriteLine("After connected");
                 using (publishSubject.Subscribe(async message => await SendMessageAsync(stream, message, token)))
 
                 {
@@ -72,16 +74,6 @@ namespace Sandbox
             Array.Copy(BitConverter.GetBytes(message.Length), messageToSend, sizeof(int));
             Array.Copy(message, 0, messageToSend, sizeof(int), message.Length);
             await stream.WriteAsync(messageToSend, 0, messageToSend.Length, cancellationToken);
-        }
-
-        public IDisposable Subscribe(IObserver<byte[]> observer)
-        {
-            return serverObservable.Subscribe(observer);
-        }
-
-        public void Dispose()
-        {
-            publishSubject?.OnCompleted();
         }
     }
 }

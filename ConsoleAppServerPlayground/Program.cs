@@ -15,7 +15,7 @@ namespace ConsoleAppServerPlayground
             sandbox.UnexpectedExceptionHandler.Subscribe(it => Console.WriteLine(it));
             using (sandbox)
             {
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 10000; i++)
                 {
                     Console.WriteLine("Call void");
                     sandbox.Instance.VoidTest();
