@@ -31,22 +31,24 @@ namespace Sandbox.Client
             var server = new NamedPipeServer(new NamedPipedClientFactory(), _address);
 
             var publisher = new PublishedMessagesFormatter(server, serializer);
+
             var observable = server.Select(it => serializer.Deserialize(it));
+            var client = new SandboxClient(observable, publisher);
+            observable.OfType<TerminateCommand>().Subscribe(it => Environment.Exit(0),() => Environment.Exit(0));
             AppDomain.CurrentDomain.UnhandledException += (s, e) => CurrentDomainOnUnhandledException(e, publisher);
             AppDomain.CurrentDomain.AssemblyResolve += (s, e) => ResolveAssembly(e, observable, publisher);
-            observable.OfType<TerminateCommand>().Subscribe(it => Environment.Exit(0));
 
-            return new SandboxClient(observable, publisher);
+
+            return client;
         }
 
         private Assembly ResolveAssembly(ResolveEventArgs args, IObservable<Message> observable,
             PublishedMessagesFormatter publisher)
         {
-            Console.WriteLine(args.RequestingAssembly);
             if (args.RequestingAssembly == null)
                 return null;
             var resolveMessage = new AssemblyResolveMessage
-                {RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name};
+            { RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name };
             var task = new TaskCompletionSource<AssemblyResolveAnswer>();
             using (observable.OfType<AssemblyResolveAnswer>()
                 .Where(it => it.AnswerTo == resolveMessage.Number).Take(1)
@@ -65,7 +67,7 @@ namespace Sandbox.Client
             IPublisher<Message> publishedMessagesFormatter)
         {
             publishedMessagesFormatter.Publish(new UnexpectedExceptionMessage
-                {Exception = e.ExceptionObject as Exception});
+            { Exception = e.ExceptionObject as Exception });
             Environment.Exit(0);
         }
     }

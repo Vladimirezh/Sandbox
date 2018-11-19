@@ -28,7 +28,9 @@ namespace Sandbox.Server
 
             public Task ConnectionAsync(CancellationToken cancellationToken)
             {
-                return Task.Run(() => stream.WaitForConnection());
+                var task = Task.Run(() => stream.WaitForConnection());
+                task.ConfigureAwait(false);
+                return task;
                 //  return stream.WaitForConnectionAsync(cancellationToken);
             }
 
