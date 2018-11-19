@@ -93,8 +93,12 @@ namespace SandboxTest.Server
         public void TestDisposeMustPublishTerminateCommand()
         {
             var publisher = new Mock<IPublisher<Message>>();
-            new Sandbox<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object).Dispose();
+            var disposable = new Mock<IDisposable>();
+            var sandbox = new Sandbox<ITestClass, TestClass>(Mock.Of<IObservable<Message>>(), publisher.Object);
+            sandbox.AddDisposeHandler(disposable.Object);
+            sandbox.Dispose();
             publisher.Verify(it => it.Publish(It.IsAny<TerminateCommand>()), Times.Once);
+            disposable.Verify(it => it.Dispose(), Times.Once);
         }
     }
 }

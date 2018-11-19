@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using Sandbox.Commands;
 using Sandbox.Common;
@@ -14,6 +15,7 @@ namespace Sandbox.Server
         private readonly Subject<Exception> _exceptionHandlerSubject = new Subject<Exception>();
         private readonly IPublisher<Message> _messagePublisher;
         private readonly IDisposable _commandsSubscription;
+        private readonly CompositeDisposable _disposeHandlers = new CompositeDisposable();
 
         public Sandbox(IObservable<Message> messagesObservable, IPublisher<Message> messagePublisher)
         {
@@ -34,8 +36,14 @@ namespace Sandbox.Server
         public void Dispose()
         {
             _messagePublisher.Publish(new TerminateCommand());
+            _disposeHandlers.Dispose();
             _exceptionHandlerSubject?.Dispose();
             _commandsSubscription?.Dispose();
+        }
+
+        public void AddDisposeHandler(IDisposable disposable)
+        {
+            _disposeHandlers.Add(disposable);
         }
 
         private void ExecuteCommand(Message it)

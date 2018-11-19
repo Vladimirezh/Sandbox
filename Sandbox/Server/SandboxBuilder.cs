@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Sandbox.Common;
 using Sandbox.Serializer;
@@ -48,13 +49,12 @@ namespace Sandbox.Server
             var sandbox = new Sandbox<TInterface, TObject>(server.Select(it => serializer.Deserialize(it)),
                 new PublishedMessagesFormatter(server, serializer));
             if (createClient)
-                CreateAndRunClient();
+                sandbox.AddDisposeHandler(CreateAndRunClient());
 
             return sandbox;
-
         }
 
-        private void CreateAndRunClient()
+        private Job.Job CreateAndRunClient()
         {
             var fileName = Path.GetRandomFileName() + ".exe";
             switch (clientPlatform)
@@ -69,9 +69,20 @@ namespace Sandbox.Server
                     File.WriteAllBytes(fileName, Clients.SandboxClientAnyCPU);
                     break;
             }
-            var si = new ProcessStartInfo { CreateNoWindow = true, UseShellExecute = false, WindowStyle = ProcessWindowStyle.Hidden, Arguments = _address, FileName = fileName, WorkingDirectory = Environment.CurrentDirectory };
 
-            Process.Start(si);
+            var job = new Job.Job();
+
+            var si = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = _address,
+                FileName = fileName,
+                WorkingDirectory = Environment.CurrentDirectory
+            };
+            job.AddProcess(Process.Start(si).Handle);
+            return job;
         }
     }
 }
