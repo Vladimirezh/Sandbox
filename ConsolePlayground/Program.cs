@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sandbox.Server;
 
 namespace ConsolePlayground
 {
@@ -12,7 +13,7 @@ namespace ConsolePlayground
         static void Main(string[] args)
         {
             Console.WriteLine("Running");
-            using (var calc = new Sandbox.Server.SandboxBuilder().WithClient(Sandbox.Server.Platform.x86)
+            using (var calc = new SandboxBuilder().WithClient(Platform.x86)
                 .Build<ICalculator, Calculator>())
             {
                 Console.WriteLine("Connected");
