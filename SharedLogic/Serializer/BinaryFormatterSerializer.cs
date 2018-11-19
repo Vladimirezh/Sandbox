@@ -1,4 +1,7 @@
+using System;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Sandbox.Commands;
 
@@ -6,7 +9,7 @@ namespace Sandbox.Serializer
 {
     public class BinaryFormatterSerializer : ISerializer
     {
-        private readonly BinaryFormatter _formatter = new BinaryFormatter();
+        private readonly BinaryFormatter _formatter = new BinaryFormatter() { Binder = new Binder() };
 
         public byte[] Serialize(Message message)
         {
@@ -20,7 +23,19 @@ namespace Sandbox.Serializer
         public Message Deserialize(byte[] bytes)
         {
             using (var ms = new MemoryStream(bytes))
-                return (Message) _formatter.Deserialize(ms);
+            {
+                return (Message)_formatter.Deserialize(ms);
+            }
+        }
+
+
+        private sealed class Binder : SerializationBinder
+        {
+
+            public override Type BindToType(string assemblyName, string typeName)
+            {
+                return Assembly.GetExecutingAssembly().GetType(typeName);
+            }
         }
     }
 }

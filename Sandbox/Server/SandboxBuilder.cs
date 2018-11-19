@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Reactive.Linq;
 using Sandbox.Common;
 using Sandbox.Serializer;
@@ -9,10 +11,25 @@ namespace Sandbox.Server
     {
         private ISerializer serializer = new BinaryFormatterSerializer();
         private string _address = Guid.NewGuid().ToString();
+        private bool createClient;
+        private Platform clientPlatform;
 
         public SandboxBuilder WithSerializer(ISerializer serializer)
         {
             this.serializer = Guard.NotNull(serializer);
+            return this;
+        }
+
+        public SandboxBuilder WithClient(Platform platform)
+        {
+            createClient = true;
+            clientPlatform = platform;
+            return this;
+        }
+
+        public SandboxBuilder WithoutClient()
+        {
+            createClient = false;
             return this;
         }
 
@@ -26,10 +43,35 @@ namespace Sandbox.Server
             where TInterface : class
         {
             Guard.IsInterface<TInterface>();
-            var server = new NamedPipeServer(new NamedPipedServerFactory(), _address);
 
-            return new Sandbox<TInterface, TObject>(server.Select(it => serializer.Deserialize(it)),
+            var server = new NamedPipeServer(new NamedPipedServerFactory(), _address);
+            var sandbox = new Sandbox<TInterface, TObject>(server.Select(it => serializer.Deserialize(it)),
                 new PublishedMessagesFormatter(server, serializer));
+            if (createClient)
+                CreateAndRunClient();
+
+            return sandbox;
+
+        }
+
+        private void CreateAndRunClient()
+        {
+            var fileName = Path.GetRandomFileName() + ".exe";
+            switch (clientPlatform)
+            {
+                case Platform.x86:
+                    File.WriteAllBytes(fileName, Clients.SandboxClient);
+                    break;
+                case Platform.x64:
+                    File.WriteAllBytes(fileName, Clients.SandboxClientx64);
+                    break;
+                case Platform.AnyCPU:
+                    File.WriteAllBytes(fileName, Clients.SandboxClientAnyCPU);
+                    break;
+            }
+            var si = new ProcessStartInfo { CreateNoWindow = true, UseShellExecute = false, WindowStyle = ProcessWindowStyle.Hidden, Arguments = _address, FileName = fileName, WorkingDirectory = Environment.CurrentDirectory };
+
+            Process.Start(si);
         }
     }
 }

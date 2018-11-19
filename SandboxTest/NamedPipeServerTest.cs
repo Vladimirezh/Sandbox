@@ -53,7 +53,7 @@ namespace SandboxTest
             var stream = new Mock<INamedPipeStream>();
             stream.Setup(it =>
                     it.ConnectionAsync(It.Is<CancellationToken>(ct => ct != null && ct != CancellationToken.None)))
-                .Returns(Task.CompletedTask);
+                .Returns(Extentions.CompletedTask);
             var streamFactory = new Mock<INamedPipeStreamFactory>();
             streamFactory.Setup(it => it.CreateStream(It.Is<string>(a => a == NotEmptyAddress))).Returns(stream.Object);
 
@@ -69,17 +69,27 @@ namespace SandboxTest
         public void TestConnectMustCallOnceOnMultiSubscription()
         {
             var stream = new Mock<INamedPipeStream>();
-            stream.Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-            var streamFactory = new Mock<INamedPipeStreamFactory>();
-            streamFactory.Setup(it => it.CreateStream(It.IsAny<string>())).Returns(stream.Object);
-
-            var namedPipeServer = new NamedPipeServer(streamFactory.Object, NotEmptyAddress);
-            using (namedPipeServer.Subscribe(it => { }))
-            using (namedPipeServer.Subscribe(it => { }))
-            using (namedPipeServer.Subscribe(it => { }))
+            stream.Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>())).Returns(Extentions.CompletedTask);
+            var tcs = new TaskCompletionSource<int>();
+            try
             {
-                streamFactory.Verify(it => it.CreateStream(It.IsAny<string>()), Times.Once);
+                stream.Setup(it => it.ReadAsync(It.IsAny<byte[]>(), 0, It.IsAny<int>(), It.IsAny<CancellationToken>())).Returns(tcs.Task);
+                var streamFactory = new Mock<INamedPipeStreamFactory>();
+                streamFactory.Setup(it => it.CreateStream(It.IsAny<string>())).Returns(stream.Object);
+
+                var namedPipeServer = new NamedPipeServer(streamFactory.Object, NotEmptyAddress);
+                using (namedPipeServer.Subscribe(it => { }))
+                using (namedPipeServer.Subscribe(it => { }))
+                using (namedPipeServer.Subscribe(it => { }))
+                {
+                    streamFactory.Verify(it => it.CreateStream(It.IsAny<string>()), Times.Once);
+                }
             }
+            finally
+            {
+                tcs.SetResult(0);
+            }
+
         }
 
         [Theory]
@@ -93,7 +103,7 @@ namespace SandboxTest
             {
                 var stream = new Mock<INamedPipeStream>();
                 stream.InSequence(seq).Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.CompletedTask);
+                    .Returns(Extentions.CompletedTask);
                 stream.InSequence(seq).Setup(it => it.ReadAsync(It.Is<byte[]>(ar => ar.Length == sizeof(int)),
                         It.Is<int>(o => o == 0),
                         It.Is<int>(c => c == sizeof(int)),
@@ -157,7 +167,7 @@ namespace SandboxTest
         public void TestReadLengthWithZeroByteCountMustCallComplete()
         {
             var stream = new Mock<INamedPipeStream>();
-            stream.Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            stream.Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>())).Returns(Extentions.CompletedTask);
             stream.Setup(it => it.ReadAsync(It.IsAny<byte[]>(), 0, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0));
             var streamFactory = new Mock<INamedPipeStreamFactory>();
@@ -175,7 +185,7 @@ namespace SandboxTest
             var seq = new MockSequence();
             var stream = new Mock<INamedPipeStream>();
             stream.InSequence(seq).Setup(it => it.ConnectionAsync(It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .Returns(Extentions.CompletedTask);
             stream.InSequence(seq).Setup(it =>
                     it.ReadAsync(It.IsAny<byte[]>(), 0, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns<byte[], int, int, CancellationToken>((bytes, offset, count, ct) =>
@@ -202,7 +212,7 @@ namespace SandboxTest
             var stream = new Mock<INamedPipeStream>();
             stream.Setup(it =>
                     it.ConnectionAsync(It.Is<CancellationToken>(ct => ct != null && ct != CancellationToken.None)))
-                .Returns(Task.CompletedTask);
+                .Returns(Extentions.CompletedTask);
             var streamFactory = new Mock<INamedPipeStreamFactory>();
             streamFactory.Setup(it => it.CreateStream(It.IsAny<string>())).Returns(stream.Object);
             var observer = new Mock<IObserver<byte[]>>();
@@ -255,14 +265,14 @@ namespace SandboxTest
                     sizeOfMessage, It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        private (Mock<INamedPipeStream> streamMock, NamedPipeServer server ) CreateStreamAndServerForPublishTest()
+        private (Mock<INamedPipeStream> streamMock, NamedPipeServer server) CreateStreamAndServerForPublishTest()
         {
             var stream = new Mock<INamedPipeStream>();
             stream.Setup(it =>
                     it.ConnectionAsync(It.Is<CancellationToken>(ct => ct != null && ct != CancellationToken.None)))
-                .Returns(Task.CompletedTask);
+                .Returns(Extentions.CompletedTask);
             stream.Setup(it => it.WriteAsync(It.IsAny<byte[]>(), 0, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .Returns(Extentions.CompletedTask);
 
             stream.Setup(it => it.ReadAsync(It.IsAny<byte[]>(), 0, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns<byte[], int, int, CancellationToken>(async (bytes, i, c, ct) =>

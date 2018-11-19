@@ -94,7 +94,8 @@ namespace Sandbox.Client
 
             public Task ConnectionAsync(CancellationToken cancellationToken)
             {
-                return stream.ConnectAsync(cancellationToken);
+                return Task.Run(() => stream.Connect(), cancellationToken);
+                //  return stream.ConnectAsync(cancellationToken);
             }
 
             public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

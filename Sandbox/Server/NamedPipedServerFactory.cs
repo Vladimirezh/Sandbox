@@ -17,7 +17,7 @@ namespace Sandbox.Server
 
             public NamedPipedServer(string address)
             {
-                stream = new NamedPipeServerStream(address, PipeDirection.InOut, 10, PipeTransmissionMode.Byte,
+                stream = new NamedPipeServerStream(address, PipeDirection.InOut, 2, PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous);
             }
 
@@ -28,7 +28,8 @@ namespace Sandbox.Server
 
             public Task ConnectionAsync(CancellationToken cancellationToken)
             {
-                return stream.WaitForConnectionAsync(cancellationToken);
+                return Task.Run(() => stream.WaitForConnection());
+                //  return stream.WaitForConnectionAsync(cancellationToken);
             }
 
             public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

@@ -8,8 +8,9 @@ namespace SandboxTest.Commands
         [Fact]
         public void AllCallsCtorMustIncrementNumber()
         {
-            for (var i = 0; i < 100; i++)
-                Assert.Equal(i + 1, new Message().Number);
+            var num = new Message().Number;
+            for (var i = 1; i < 100; i++)
+                Assert.Equal(num + i, new Message().Number);
         }
     }
 }

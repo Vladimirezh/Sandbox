@@ -9,7 +9,6 @@ namespace Sandbox
 {
     public class NamedPipeServer : IObservable<byte[]>, IDisposable, IPublisher<byte[]>
     {
-        private static EventLoopScheduler _scheduler = new EventLoopScheduler();
         private readonly UnicastSubject<byte[]> publishSubject = new UnicastSubject<byte[]>();
         private readonly IObservable<byte[]> serverObservable;
         private readonly INamedPipeStreamFactory streamFactory;
@@ -47,7 +46,6 @@ namespace Sandbox
             {
                 await stream.ConnectionAsync(token);
                 using (publishSubject.Subscribe(async message => await SendMessageAsync(stream, message, token)))
-
                 {
                     while (!token.IsCancellationRequested)
                     {
