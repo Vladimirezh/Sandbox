@@ -6,7 +6,7 @@ Sandbox based on named pipes, binary serialization and observers.
 
 # How to use
 
-For example you have Calculator class and ICalculator interface
+For example, you have Calculator class and ICalculator interface
 
 ```
         public class Calculator : ICalculator
