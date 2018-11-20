@@ -4,13 +4,15 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{0C7EC266-EBA4-40C7-A11D-7FF90E54461C}</ProjectGuid>
+        <ProjectGuid>{6BD0940F-CF17-4E76-A5F4-5018B637D5D3}</ProjectGuid>
         <OutputType>Exe</OutputType>
-        <RootNamespace>SandboxClientAnyCPU</RootNamespace>
-        <AssemblyName>SandboxClientAnyCPU</AssemblyName>
+        <RootNamespace>SandboxClientx64</RootNamespace>
+        <AssemblyName>SandboxClientx64</AssemblyName>
         <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <NuGetPackageImportStamp>
+        </NuGetPackageImportStamp>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +32,32 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+        <DebugSymbols>true</DebugSymbols>
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <DebugType>full</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <ErrorReport>prompt</ErrorReport>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+        <Prefer32Bit>true</Prefer32Bit>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+        <OutputPath>bin\x64\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <Optimize>true</Optimize>
+        <DebugType>pdbonly</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <ErrorReport>prompt</ErrorReport>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+        <Prefer32Bit>true</Prefer32Bit>
+    </PropertyGroup>
+    <PropertyGroup>
+        <SignAssembly>true</SignAssembly>
+    </PropertyGroup>
+    <PropertyGroup>
+        <AssemblyOriginatorKeyFile>Sandbox.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System"/>
@@ -67,6 +95,7 @@
     <ItemGroup>
         <None Include="App.config"/>
         <None Include="packages.config"/>
+        <None Include="Sandbox.snk"/>
     </ItemGroup>
     <Import Project="..\SharedLogic\SharedLogic.projitems" Label="Shared"/>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
