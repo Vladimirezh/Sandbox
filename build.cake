@@ -65,7 +65,7 @@ Task("CreateNugetPackage")
     .IsDependentOn("CopyOutputToNugetFolder")
     .Does(()=>
 {
-    var buildVersion = System.Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ?? "1.0.0";
+    var buildVersion = System.Environment.GetEnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "1.0.0";
     Information("Building Sandbox.{0}.nupkg", buildVersion);
     var nuGetPackSettings = new NuGetPackSettings {
         Version  = buildVersion,
