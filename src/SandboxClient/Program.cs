@@ -8,7 +8,8 @@ namespace SandboxClient
         static Sandbox.Client.SandboxClient client;
         static void Main(string[] args)
         {
-            client = new SandboxClientBuilder(args[0]).Build();
+            //args[1] lib path
+            client = new SandboxClientBuilder( args[ 0 ] ).Build();
             Console.ReadKey();
         }
     }

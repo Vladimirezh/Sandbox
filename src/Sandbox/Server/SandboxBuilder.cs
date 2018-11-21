@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reactive.Disposables;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Sandbox.Common;
 using Sandbox.Serializer;
@@ -77,7 +77,7 @@ namespace Sandbox.Server
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = _address,
+                Arguments = $"\"{_address}\" \"{typeof( EventLoopScheduler ).Assembly.Location}\"",
                 FileName = fileName,
                 WorkingDirectory = Environment.CurrentDirectory
             };
