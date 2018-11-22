@@ -12,107 +12,100 @@ namespace Sandbox.Client
 {
     public class SandboxClientBuilder
     {
-        private readonly string _address;
-        private ISerializer serializer = new BinaryFormatterSerializer();
-
-        public SandboxClientBuilder(string address)
+        public SandboxClientBuilder( string address )
         {
             _address = address;
         }
 
-        public SandboxClientBuilder WithSerializer(ISerializer serializer)
+        private readonly string _address;
+        private ISerializer _serializer = new BinaryFormatterSerializer();
+
+        public SandboxClientBuilder WithSerializer( ISerializer serializer )
         {
-            this.serializer = Guard.NotNull(serializer);
+            _serializer = Guard.NotNull( serializer );
             return this;
         }
 
         public SandboxClient Build()
         {
-            var server = new NamedPipeServer(new NamedPipedClientFactory(), _address);
+            var server = new NamedPipeServer( new NamedPipedClientFactory(), _address );
 
-            var publisher = new PublishedMessagesFormatter(server, serializer);
+            var publisher = new PublishedMessagesFormatter( server, _serializer );
 
-            var observable = server.Select(it => serializer.Deserialize(it));
-            var client = new SandboxClient(observable, publisher);
-            observable.OfType<TerminateCommand>().Subscribe(it => Environment.Exit(0),() => Environment.Exit(0));
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => CurrentDomainOnUnhandledException(e, publisher);
-            AppDomain.CurrentDomain.AssemblyResolve += (s, e) => ResolveAssembly(e, observable, publisher);
-
+            var observable = server.Select( it => _serializer.Deserialize( it ) );
+            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => ResolveAssembly( e, observable, publisher );
+            var client = new SandboxClient( observable, publisher );
+            observable.OfType< TerminateCommand >().Subscribe( it => Environment.Exit( 0 ), () => Environment.Exit( 0 ) );
+            AppDomain.CurrentDomain.UnhandledException += ( s, e ) => CurrentDomainOnUnhandledException( e, publisher );
 
             return client;
         }
 
-        private Assembly ResolveAssembly(ResolveEventArgs args, IObservable<Message> observable,
-            PublishedMessagesFormatter publisher)
+        private static Assembly ResolveAssembly( ResolveEventArgs args, IObservable< Message > observable, PublishedMessagesFormatter publisher )
         {
-            if (args.RequestingAssembly == null)
+            if ( args.RequestingAssembly == null )
                 return null;
-            var resolveMessage = new AssemblyResolveMessage
-            { RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name };
-            var task = new TaskCompletionSource<AssemblyResolveAnswer>();
-            using (observable.OfType<AssemblyResolveAnswer>()
-                .Where(it => it.AnswerTo == resolveMessage.Number).Take(1)
-                .Subscribe(it => task.SetResult(it)))
+
+            var resolveMessage = new AssemblyResolveMessage { RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name };
+            var task = new TaskCompletionSource< AssemblyResolveAnswer >();
+            using ( observable.OfType< AssemblyResolveAnswer >().Where( it => it.AnswerTo == resolveMessage.Number ).Take( 1 ).Subscribe( it => task.SetResult( it ) ) )
             {
-                publisher.Publish(resolveMessage);
+                publisher.Publish( resolveMessage );
                 var answer = task.Task.Result;
-                if (answer.Handled)
-                    return Assembly.LoadFile(answer.Location);
+                if ( answer.Handled )
+                    return Assembly.LoadFile( answer.Location );
             }
 
             return null;
         }
 
-        private void CurrentDomainOnUnhandledException(UnhandledExceptionEventArgs e,
-            IPublisher<Message> publishedMessagesFormatter)
+        private static void CurrentDomainOnUnhandledException( UnhandledExceptionEventArgs e, IPublisher< Message > publishedMessagesFormatter )
         {
-            publishedMessagesFormatter.Publish(new UnexpectedExceptionMessage
-            { Exception = e.ExceptionObject as Exception });
-            Environment.Exit(0);
+            publishedMessagesFormatter.Publish( new UnexpectedExceptionMessage { Exception = e.ExceptionObject as Exception } );
+            Environment.Exit( 0 );
         }
     }
 
-    public class NamedPipedClientFactory : INamedPipeStreamFactory
+    internal sealed class NamedPipedClientFactory : INamedPipeStreamFactory
     {
-        public INamedPipeStream CreateStream(string address)
+        public INamedPipeStream CreateStream( string address )
         {
-            return new NamedPipeSandboxClientStream(address);
+            return new NamedPipeSandboxClientStream( address );
         }
 
-        private class NamedPipeSandboxClientStream : INamedPipeStream
+        private sealed class NamedPipeSandboxClientStream : INamedPipeStream
         {
-            private readonly NamedPipeClientStream stream;
-
-            public NamedPipeSandboxClientStream(string address)
+            public NamedPipeSandboxClientStream( string address )
             {
-                stream = new NamedPipeClientStream(".", address, PipeDirection.InOut,
-                    PipeOptions.Asynchronous);
+                stream = new NamedPipeClientStream( ".", address, PipeDirection.InOut, PipeOptions.Asynchronous );
             }
+
+            private readonly NamedPipeClientStream stream;
 
             public void Dispose()
             {
                 stream.Dispose();
             }
 
-            public Task ConnectionAsync(CancellationToken cancellationToken)
+            public Task ConnectionAsync( CancellationToken cancellationToken )
             {
-                return Task.Run(() => stream.Connect(), cancellationToken);
+                return Task.Run( () => stream.Connect(), cancellationToken );
                 //  return stream.ConnectAsync(cancellationToken);
             }
 
-            public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public Task< int > ReadAsync( byte[] buffer, int offset, int count, CancellationToken cancellationToken )
             {
-                return stream.ReadAsync(buffer, offset, count, cancellationToken);
+                return stream.ReadAsync( buffer, offset, count, cancellationToken );
             }
 
-            public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            public Task WriteAsync( byte[] buffer, int offset, int count, CancellationToken cancellationToken )
             {
-                return stream.WriteAsync(buffer, offset, count, cancellationToken);
+                return stream.WriteAsync( buffer, offset, count, cancellationToken );
             }
 
-            public Task FlushAsync(CancellationToken cancellationToken)
+            public Task FlushAsync( CancellationToken cancellationToken )
             {
-                return stream.FlushAsync(cancellationToken);
+                return stream.FlushAsync( cancellationToken );
             }
         }
     }

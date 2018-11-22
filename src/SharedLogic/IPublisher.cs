@@ -1,7 +1,7 @@
 namespace Sandbox
 {
-    public interface IPublisher<in T>
+    public interface IPublisher< in T >
     {
-        void Publish(T message);
+        void Publish( T message );
     }
 }

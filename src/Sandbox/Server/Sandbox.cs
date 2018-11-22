@@ -8,62 +8,56 @@ using Sandbox.InvocationHandlers;
 
 namespace Sandbox.Server
 {
-    public class Sandbox<TInterface, TObject> : IDisposable
-        where TInterface : class
-        where TObject : class, TInterface, new()
+    public class Sandbox< TInterface, TObject > : IDisposable where TInterface : class where TObject : class, TInterface, new()
     {
-        private readonly Subject<Exception> _exceptionHandlerSubject = new Subject<Exception>();
-        private readonly IPublisher<Message> _messagePublisher;
-        private readonly IDisposable _commandsSubscription;
-        private readonly CompositeDisposable _disposeHandlers = new CompositeDisposable();
-
-        public Sandbox(IObservable<Message> messagesObservable, IPublisher<Message> messagePublisher)
+        public Sandbox( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )
         {
             _messagePublisher = messagePublisher;
-            Guard.IsInterface<TInterface>();
-            Guard.NotNull(messagePublisher);
-            Guard.NotNull(messagesObservable);
-            Instance = ServerProxy<TInterface>.Create(messagesObservable, messagePublisher);
-            _commandsSubscription = messagesObservable.Subscribe(ExecuteCommand);
-            messagePublisher.Publish(new CreateObjectOfTypeCommad(typeof(TObject).FullName,
-                typeof(TObject).Assembly.Location));
+            Guard.IsInterface< TInterface >();
+            Guard.NotNull( messagePublisher );
+            Guard.NotNull( messagesObservable );
+            Instance = ServerProxy< TInterface >.Create( messagesObservable, messagePublisher );
+            _commandsSubscription = messagesObservable.Subscribe( ExecuteCommand );
+            messagePublisher.Publish( new CreateObjectOfTypeCommad( typeof( TObject ).FullName, typeof( TObject ).Assembly.Location ) );
         }
 
-        public IObservable<Exception> UnexpectedExceptionHandler => _exceptionHandlerSubject;
+        private readonly IDisposable _commandsSubscription;
+        private readonly CompositeDisposable _disposeHandlers = new CompositeDisposable();
+        private readonly Subject< Exception > _exceptionHandlerSubject = new Subject< Exception >();
+        private readonly IPublisher< Message > _messagePublisher;
+
+        public IObservable< Exception > UnexpectedExceptionHandler => _exceptionHandlerSubject;
 
         public TInterface Instance { get; }
 
         public void Dispose()
         {
-            _messagePublisher.Publish(new TerminateCommand());
+            _messagePublisher.Publish( new TerminateCommand() );
             _disposeHandlers.Dispose();
             _exceptionHandlerSubject?.Dispose();
             _commandsSubscription?.Dispose();
         }
 
-        public void AddDisposeHandler(IDisposable disposable)
+        public void AddDisposeHandler( IDisposable disposable )
         {
-            _disposeHandlers.Add(disposable);
+            _disposeHandlers.Add( disposable );
         }
 
-        private void ExecuteCommand(Message it)
+        private void ExecuteCommand( Message it )
         {
-            switch (it)
+            switch ( it )
             {
                 case UnexpectedExceptionMessage uem:
-                    _exceptionHandlerSubject.OnNext(uem.Exception);
+                    _exceptionHandlerSubject.OnNext( uem.Exception );
                     break;
                 case AssemblyResolveMessage arm:
                 {
-                    var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                        .FirstOrDefault(a => a.FullName == arm.RequestingAssemblyFullName);
-                    _messagePublisher.Publish(new AssemblyResolveAnswer
-                        {Handled = assembly != null, Location = assembly?.Location, AnswerTo = it.Number});
-                    if (assembly == null)
+                    var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault( a => a.FullName == arm.RequestingAssemblyFullName );
+                    _messagePublisher.Publish( new AssemblyResolveAnswer { Handled = assembly != null, Location = assembly?.Location, AnswerTo = it.Number } );
+                    if ( assembly == null )
                     {
-                        _messagePublisher.Publish(new TerminateCommand());
-                        _exceptionHandlerSubject.OnNext(
-                            new CantResolveAssemblyException(arm.RequestingAssemblyFullName, arm.Name));
+                        _messagePublisher.Publish( new TerminateCommand() );
+                        _exceptionHandlerSubject.OnNext( new CantResolveAssemblyException( arm.RequestingAssemblyFullName, arm.Name ) );
                     }
 
                     _commandsSubscription?.Dispose();

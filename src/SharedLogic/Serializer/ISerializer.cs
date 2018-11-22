@@ -4,7 +4,7 @@ namespace Sandbox.Serializer
 {
     public interface ISerializer
     {
-        byte[] Serialize(Message message);
-        Message Deserialize(byte[] bytes);
+        byte[] Serialize( Message message );
+        Message Deserialize( byte[] bytes );
     }
 }

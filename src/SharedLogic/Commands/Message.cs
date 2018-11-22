@@ -6,17 +6,18 @@ namespace Sandbox.Commands
     [Serializable]
     public class Message
     {
-        private static volatile int messageNumber = 0;
-        private volatile int number;
+        private static volatile int messageNumber;
+
         public Message()
         {
-            number = Interlocked.Increment(ref messageNumber);
+            number = Interlocked.Increment( ref messageNumber );
         }
+
+        private volatile int number;
 
         public int Number
         {
             get => number;
-            private set { number = value; }
         }
     }
 }

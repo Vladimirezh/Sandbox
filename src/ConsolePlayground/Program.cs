@@ -1,37 +1,34 @@
 ﻿using System;
-using System.Reactive.Linq;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Sandbox.Server;
 
 namespace ConsolePlayground
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            Console.WriteLine("Running");
-            using (var calc = new SandboxBuilder().WithClient(Platform.x86)
-                .Build<ICalculator, Calculator>())
+            Console.WriteLine( "Running" );
+            using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
-                Console.WriteLine("Connected");
-                calc.UnexpectedExceptionHandler.Subscribe(it => { Console.WriteLine(it); });
-                for (int i = 0; i < 100; i++)
-                    Console.WriteLine(calc.Instance.Add(i, 2));
-                Console.ReadKey();
+                Console.WriteLine( "Connected" );
+                calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
+                while ( true )
+                {
+                    for ( var i = 0; i < 100; i++ )
+                        Console.WriteLine( calc.Instance.Add( i, 2 ) );
+                    Console.ReadKey();
+                }
             }
         }
 
         public interface ICalculator
         {
-            int Add(int a, int b);
+            int Add( int a, int b );
         }
 
         public class Calculator : ICalculator
         {
-            public int Add(int a, int b)
+            public int Add( int a, int b )
             {
                 return a + b;
             }

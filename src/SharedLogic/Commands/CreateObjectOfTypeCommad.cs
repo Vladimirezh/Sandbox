@@ -6,10 +6,10 @@ namespace Sandbox.Commands
     [Serializable]
     public class CreateObjectOfTypeCommad : Message
     {
-        public CreateObjectOfTypeCommad(string typeFullName, string assemblyPath)
+        public CreateObjectOfTypeCommad( string typeFullName, string assemblyPath )
         {
-            TypeFullName = Guard.NotNullOrEmpty(typeFullName, nameof(typeFullName));
-            AssemblyPath = Guard.NotNullOrEmpty(assemblyPath, nameof(assemblyPath));
+            TypeFullName = Guard.NotNullOrEmpty( typeFullName, nameof( typeFullName ) );
+            AssemblyPath = Guard.NotNullOrEmpty( assemblyPath, nameof( assemblyPath ) );
         }
 
         public string AssemblyPath { get; set; }

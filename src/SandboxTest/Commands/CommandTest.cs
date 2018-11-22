@@ -9,10 +9,10 @@ namespace SandboxTest.Commands
         public void AllCallsCtorMustIncrementNumber()
         {
             var prevNum = new Message().Number;
-            for (var i = 1; i < 10; i++)
+            for ( var i = 1; i < 10; i++ )
             {
                 var newNum = new Message().Number;
-                Assert.True(prevNum < newNum);
+                Assert.True( prevNum < newNum );
                 prevNum = newNum;
             }
         }

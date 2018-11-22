@@ -9,32 +9,30 @@ namespace Sandbox.Serializer
 {
     public class BinaryFormatterSerializer : ISerializer
     {
-        private readonly BinaryFormatter _formatter = new BinaryFormatter() { Binder = new Binder() };
+        private readonly BinaryFormatter _formatter = new BinaryFormatter { Binder = new Binder() };
 
-        public byte[] Serialize(Message message)
+        public byte[] Serialize( Message message )
         {
-            using (var ms = new MemoryStream())
+            using ( var ms = new MemoryStream() )
             {
-                _formatter.Serialize(ms, message);
+                _formatter.Serialize( ms, message );
                 return ms.ToArray();
             }
         }
 
-        public Message Deserialize(byte[] bytes)
+        public Message Deserialize( byte[] bytes )
         {
-            using (var ms = new MemoryStream(bytes))
+            using ( var ms = new MemoryStream( bytes ) )
             {
-                return (Message)_formatter.Deserialize(ms);
+                return ( Message ) _formatter.Deserialize( ms );
             }
         }
 
-
         private sealed class Binder : SerializationBinder
         {
-
-            public override Type BindToType(string assemblyName, string typeName)
+            public override Type BindToType( string assemblyName, string typeName )
             {
-                return Assembly.GetExecutingAssembly().GetType(typeName);
+                return Assembly.GetExecutingAssembly().GetType( typeName );
             }
         }
     }

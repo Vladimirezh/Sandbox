@@ -3,20 +3,20 @@ using Sandbox.Serializer;
 
 namespace Sandbox.Common
 {
-    public class PublishedMessagesFormatter : IPublisher<Message>
+    public class PublishedMessagesFormatter : IPublisher< Message >
     {
-        private readonly IPublisher<byte[]> _server;
-        private readonly ISerializer _serializer;
-
-        public PublishedMessagesFormatter(IPublisher<byte[]> server, ISerializer serializer)
+        public PublishedMessagesFormatter( IPublisher< byte[] > server, ISerializer serializer )
         {
             _server = server;
             _serializer = serializer;
         }
 
-        public void Publish(Message message)
+        private readonly ISerializer _serializer;
+        private readonly IPublisher< byte[] > _server;
+
+        public void Publish( Message message )
         {
-            _server.Publish(_serializer.Serialize(message));
+            _server.Publish( _serializer.Serialize( message ) );
         }
     }
 }
