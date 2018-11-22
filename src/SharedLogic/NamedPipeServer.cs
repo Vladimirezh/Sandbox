@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Sandbox.Common;
-using Sandbox.Exceptions;
+
 // ReSharper disable AccessToDisposedClosure
 
 namespace Sandbox
@@ -76,7 +76,7 @@ namespace Sandbox
             {
                 if ( !isException && !token.IsCancellationRequested )
                 {
-                    var processTerminatedException = new ProcessTerminatedException();
+                    var processTerminatedException = new SandboxTerminatedException();
                     publishSubject.OnError( processTerminatedException );
                     throw processTerminatedException;
                 }

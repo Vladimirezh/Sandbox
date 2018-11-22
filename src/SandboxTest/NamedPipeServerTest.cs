@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Sandbox;
-using Sandbox.Exceptions;
+using Sandbox.Common;
 using SandboxTest.Common;
 using Xunit;
 
@@ -167,7 +167,7 @@ namespace SandboxTest
             var observer = new Mock< IObserver< byte[] > >();
             using ( new NamedPipeServer( streamFactory.Object, NotEmptyAddress ).Subscribe( observer.Object ) )
             {
-                observer.Verify( it => it.OnError( It.IsAny< ProcessTerminatedException >() ), Times.Once );
+                observer.Verify( it => it.OnError( It.IsAny< SandboxTerminatedException >() ), Times.Once );
             }
         }
 
@@ -191,7 +191,7 @@ namespace SandboxTest
             var observer = new Mock< IObserver< byte[] > >();
             using ( new NamedPipeServer( streamFactory.Object, NotEmptyAddress ).Subscribe( observer.Object ) )
             {
-                observer.Verify( it => it.OnError( It.IsAny< ProcessTerminatedException >() ) );
+                observer.Verify( it => it.OnError( It.IsAny< SandboxTerminatedException >() ) );
             }
         }
 

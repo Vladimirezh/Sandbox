@@ -1,14 +1,12 @@
 using System;
-using System.Reactive.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-using System.Threading.Tasks;
 using Sandbox.Commands;
 using Sandbox.Common;
 
 namespace Sandbox.InvocationHandlers
 {
-    public class ServerProxy< T > : RealProxy
+    public sealed class ServerProxy< T > : RealProxy
     {
         public ServerProxy() : base( typeof( T ) )
         {
@@ -16,53 +14,31 @@ namespace Sandbox.InvocationHandlers
 
         private IPublisher< Message > _messagePublisher;
         private IObservable< Message > _messagesObservable;
+        private CallHandler _callHandler;
 
         public void Initialize( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )
         {
+            _callHandler = new EventCallHandler( messagesObservable, messagePublisher ) { Successor = new MethodCallHandler( messagesObservable, messagePublisher ) };
             _messagesObservable = messagesObservable;
             _messagePublisher = messagePublisher;
         }
 
         public override IMessage Invoke( IMessage msg )
         {
-            var methodCall = msg as IMethodCallMessage;
-
-            if ( methodCall != null )
+            if ( !( msg is IMethodCallMessage methodCall ) )
+                return null;
+            try
             {
-                try
-                {
-                    var methodCallCommand = new MethodCallCommand( methodCall.MethodName, methodCall.Args );
-                    var task = new TaskCompletionSource< object >();
-                    using ( _messagesObservable.OfType< MethodCallResultAnswer >().
-                                                Where( it => it.AnswerTo == methodCallCommand.Number ).
-                                                Take( 1 ).
-                                                Subscribe( it =>
-                                                           {
-                                                               if ( it.Exception != null )
-                                                                   task.SetException( it.Exception );
-                                                               else
-                                                                   task.SetResult( it.Result );
-                                                           }, ex => task.SetException( ex ), () =>
-                                                                                             {
-                                                                                                 if ( task.Task.Status == TaskStatus.Running )
-                                                                                                     task.SetException( new SandboxTerminatedException() );
-                                                                                             } ) )
-                    {
-                        _messagePublisher.Publish( methodCallCommand );
-                        return new ReturnMessage( task.Task.Result, null, 0, methodCall.LogicalCallContext, methodCall );
-                    }
-                }
-                catch ( AggregateException ex )
-                {
-                    return new ReturnMessage( ex.InnerException, methodCall );
-                }
-                catch ( Exception ex )
-                {
-                    return new ReturnMessage( ex, methodCall );
-                }
+                return new ReturnMessage( _callHandler.HandleServerSideRequest( methodCall ), null, 0, methodCall.LogicalCallContext, methodCall );
             }
-
-            return null;
+            catch ( AggregateException ex )
+            {
+                return new ReturnMessage( ex.InnerException, methodCall );
+            }
+            catch ( Exception ex )
+            {
+                return new ReturnMessage( ex, methodCall );
+            }
         }
 
         public static T Create( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )

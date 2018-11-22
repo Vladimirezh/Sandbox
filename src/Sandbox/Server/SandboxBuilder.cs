@@ -13,11 +13,11 @@ namespace Sandbox.Server
         private string _address = Guid.NewGuid().ToString();
         private Platform clientPlatform;
         private bool createClient;
-        private ISerializer serializer = new BinaryFormatterSerializer();
+        private ISerializer _serializer = new BinaryFormatterSerializer();
 
         public SandboxBuilder WithSerializer( ISerializer serializer )
         {
-            this.serializer = Guard.NotNull( serializer );
+            _serializer = Guard.NotNull( serializer );
             return this;
         }
 
@@ -45,7 +45,7 @@ namespace Sandbox.Server
             Guard.IsInterface< TInterface >();
 
             var server = new NamedPipeServer( new NamedPipedServerFactory(), _address );
-            var sandbox = new Sandbox< TInterface, TObject >( server.Select( it => serializer.Deserialize( it ) ), new PublishedMessagesFormatter( server, serializer ) );
+            var sandbox = new Sandbox< TInterface, TObject >( server.Select( it => _serializer.Deserialize( it ) ), new PublishedMessagesFormatter( server, _serializer ) );
             if ( createClient )
                 sandbox.AddDisposeHandler( CreateAndRunClient() );
 

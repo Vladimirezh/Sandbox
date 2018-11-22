@@ -19,7 +19,7 @@ namespace Sandbox.Common
                 throw new ArgumentException( $"{typeof( T ).FullName} must be interface" );
         }
 
-        public static T NotNull< T >( T val )
+        public static T NotNull< T >( T val ) where T : class
         {
             if ( val == null )
                 throw new ArgumentNullException();

@@ -17,7 +17,7 @@ namespace Sandbox.Common
         private readonly ConcurrentQueue< T > queue;
         private bool done;
         private Exception _error;
-        private IObserver< T > observer;
+        private IObserver< T > _observer;
         private int once;
         private int wip;
 
@@ -53,7 +53,7 @@ namespace Sandbox.Common
                 throw new ArgumentNullException( nameof( observer ) );
             if ( Interlocked.CompareExchange( ref once, 1, 0 ) == 0 )
             {
-                Volatile.Write( ref this.observer, observer );
+                Volatile.Write( ref _observer, observer );
                 Drain();
                 return new DisposeObserver( this );
             }
@@ -64,7 +64,7 @@ namespace Sandbox.Common
 
         private void Dispose()
         {
-            Volatile.Write( ref observer, null );
+            Volatile.Write( ref _observer, null );
             Volatile.Write( ref once, 2 );
             Drain();
         }
@@ -85,7 +85,7 @@ namespace Sandbox.Common
 
             for ( ;; )
             {
-                var localObserver = Volatile.Read( ref observer );
+                var localObserver = Volatile.Read( ref _observer );
 
                 if ( localObserver != null )
                 {
@@ -113,7 +113,7 @@ namespace Sandbox.Common
                                 localObserver.OnCompleted();
                             }
 
-                            Volatile.Write( ref observer, null );
+                            Volatile.Write( ref _observer, null );
                             Volatile.Write( ref once, 2 );
                             break;
                         }

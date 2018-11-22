@@ -25,9 +25,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\PublishedMessagesFormatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\SandboxTerminatedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\UnicastSubject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\ProcessTerminatedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStreamFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\CallHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\EventCallHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\InvocationHandlersExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\MethodCallHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\ServerProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPublisher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NamedPipeServer.cs" />
