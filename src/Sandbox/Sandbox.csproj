@@ -137,9 +137,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if not exist $(ProjectDir)Resources\ mkdir $(ProjectDir)Resources\
-copy $(ProjectDir)..\SandboxClient\bin\x86\Release\SandboxClient.exe $(ProjectDir)Resources\
-copy $(ProjectDir)..\SandboxClientAnyCPU\bin\Release\SandboxClientAnyCPU.exe $(ProjectDir)Resources\
-copy $(ProjectDir)..\SandboxClientx64\bin\x64\Release\SandboxClientx64.exe $(ProjectDir)Resources\
+copy $(ProjectDir)..\SandboxClient\bin\x86\$(ConfigurationName)\SandboxClient.exe $(ProjectDir)Resources\
+copy $(ProjectDir)..\SandboxClientAnyCPU\bin\$(ConfigurationName)\SandboxClientAnyCPU.exe $(ProjectDir)Resources\
+copy $(ProjectDir)..\SandboxClientx64\bin\x64\$(ConfigurationName)\SandboxClientx64.exe $(ProjectDir)Resources\
 </PreBuildEvent>
   </PropertyGroup>
 </Project>
