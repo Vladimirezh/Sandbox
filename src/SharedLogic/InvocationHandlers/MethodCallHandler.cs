@@ -39,9 +39,10 @@ namespace Sandbox.InvocationHandlers
                                                                                      } ) )
             {
                 _messagePublisher.Publish( methodCallCommand );
+                return task.Task.Result;
             }
 
-            return task.Task.Result;
+           
         }
 
         internal override void HandleClientSideRequest( object instance, Message msg )
@@ -60,7 +61,7 @@ namespace Sandbox.InvocationHandlers
             }
             else
             {
-                Successor.HandleClientSideRequest( instance, msg );
+                Successor?.HandleClientSideRequest( instance, msg );
             }
         }
     }

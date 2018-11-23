@@ -33,8 +33,9 @@ namespace Sandbox.Client
             var publisher = new PublishedMessagesFormatter( server, _serializer );
 
             var observable = server.Select( it => _serializer.Deserialize( it ) );
-            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => ResolveAssembly( e, observable, publisher );
+
             var client = new SandboxClient( observable, publisher );
+            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => ResolveAssembly( e, observable, publisher );
             observable.OfType< TerminateCommand >().Subscribe( it => Environment.Exit( 0 ), () => Environment.Exit( 0 ) );
             AppDomain.CurrentDomain.UnhandledException += ( s, e ) => CurrentDomainOnUnhandledException( e, publisher );
 

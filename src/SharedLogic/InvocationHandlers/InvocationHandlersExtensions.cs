@@ -7,7 +7,22 @@ namespace SharedLogic.InvocationHandlers
     {
         public static bool IsEvent( this IMethodCallMessage msm )
         {
-            return msm.MethodName.StartsWith( "add_", StringComparison.Ordinal ) || msm.MethodName.StartsWith( "remove_", StringComparison.Ordinal );
+            return msm.IsSubscribeToEvent() || msm.IsUnsubscribeFromEvent();
+        }
+
+        public static bool IsSubscribeToEvent( this IMethodCallMessage msm )
+        {
+            return msm.MethodName.StartsWith( "add_", StringComparison.Ordinal );
+        }
+
+        public static string GetEventName( this IMethodCallMessage msm )
+        {
+            return msm.MethodName.Replace( "add_", string.Empty ).Replace( "remove_", string.Empty );
+        }
+
+        public static bool IsUnsubscribeFromEvent( this IMethodCallMessage msm )
+        {
+            return msm.MethodName.StartsWith( "remove_", StringComparison.Ordinal );
         }
     }
 }

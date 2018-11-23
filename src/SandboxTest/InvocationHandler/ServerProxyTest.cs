@@ -18,7 +18,7 @@ namespace SandboxTest.InvocationHandler
             publisher = new Mock< IPublisher< Message > >();
             publisher.Setup( it => it.Publish( It.IsAny< Message >() ) ).Callback< Message >( it => answerCallback?.Invoke( it ) );
 
-            instance = ServerProxy< ITestClass >.Create( commandsObservable, publisher.Object );
+            instance = ServerProxy< ITestClass >.Create( CallHandler.CreateHandlerFor< ITestClass >( commandsObservable, publisher.Object ) );
         }
 
         private Action< Message > answerCallback;

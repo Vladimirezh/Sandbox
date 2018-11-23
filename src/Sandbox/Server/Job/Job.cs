@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Sandbox.Server.Job
 {
-    public class Job : IDisposable
+    internal sealed class Job : IDisposable
     {
         public Job()
         {

@@ -11,28 +11,33 @@ namespace Sandbox.Serializer
     {
         private readonly BinaryFormatter _formatter = new BinaryFormatter { Binder = new Binder() };
 
-        public byte[] Serialize( Message message )
+        public byte[] Serialize(Message message)
         {
-            using ( var ms = new MemoryStream() )
+            using (var ms = new MemoryStream())
             {
-                _formatter.Serialize( ms, message );
+                _formatter.Serialize(ms, message);
                 return ms.ToArray();
             }
         }
 
-        public Message Deserialize( byte[] bytes )
+        public Message Deserialize(byte[] bytes)
         {
-            using ( var ms = new MemoryStream( bytes ) )
+            using (var ms = new MemoryStream(bytes))
             {
-                return ( Message ) _formatter.Deserialize( ms );
+                return (Message)_formatter.Deserialize(ms);
             }
         }
 
         private sealed class Binder : SerializationBinder
         {
-            public override Type BindToType( string assemblyName, string typeName )
-            {
-                return Assembly.GetExecutingAssembly().GetType( typeName );
+            public override Type BindToType(string assemblyName, string typeName)
+            {//TODO
+                if (assemblyName.Contains("339c247525941d52"))
+                    return Assembly.GetExecutingAssembly().GetType(typeName);
+               
+                var assembly = Assembly.Load(assemblyName);
+                Console.WriteLine($"{typeName},{assemblyName}");
+                return FormatterServices.GetTypeFromAssembly(assembly, typeName);
             }
         }
     }

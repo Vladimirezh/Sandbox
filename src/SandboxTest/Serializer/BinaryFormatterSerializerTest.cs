@@ -20,6 +20,10 @@ namespace SandboxTest.Serializer
             CheckSerialization( serializer, new MethodCallResultAnswer() );
             CheckSerialization( serializer, new TerminateCommand() );
             CheckSerialization( serializer, new UnexpectedExceptionMessage() );
+            CheckSerialization( serializer, new EventCommand() );
+            CheckSerialization( serializer, new SubscribeToEventCommand() );
+            CheckSerialization( serializer, new UnsubscribeFromEventCommand() );
+            CheckSerialization( serializer, new EventInvokeCommand() );
         }
 
         private static void CheckSerialization( ISerializer serializer, Message message )

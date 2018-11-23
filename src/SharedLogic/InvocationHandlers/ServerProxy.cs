@@ -8,20 +8,18 @@ namespace Sandbox.InvocationHandlers
 {
     public sealed class ServerProxy< T > : RealProxy
     {
-        public ServerProxy() : base( typeof( T ) )
+        public ServerProxy( CallHandler handler ) : base( typeof( T ) )
         {
+            _callHandler = handler;
         }
 
-        private IPublisher< Message > _messagePublisher;
-        private IObservable< Message > _messagesObservable;
-        private CallHandler _callHandler;
-
-        public void Initialize( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )
+        public override object GetTransparentProxy()
         {
-            _callHandler = new EventCallHandler( messagesObservable, messagePublisher ) { Successor = new MethodCallHandler( messagesObservable, messagePublisher ) };
-            _messagesObservable = messagesObservable;
-            _messagePublisher = messagePublisher;
+            var transparentProxy = base.GetTransparentProxy();
+            return transparentProxy;
         }
+
+        private readonly CallHandler _callHandler;
 
         public override IMessage Invoke( IMessage msg )
         {
@@ -41,11 +39,10 @@ namespace Sandbox.InvocationHandlers
             }
         }
 
-        public static T Create( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )
+        public static T Create( CallHandler handler )
         {
             Guard.IsInterface< T >();
-            var proxy = new ServerProxy< T >();
-            proxy.Initialize( messagesObservable, messagePublisher );
+            var proxy = new ServerProxy< T >( handler );
             return ( T ) proxy.GetTransparentProxy();
         }
     }

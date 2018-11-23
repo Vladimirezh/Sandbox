@@ -1,9 +1,9 @@
 using System;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reflection;
 using Sandbox.Commands;
+using Sandbox.InvocationHandlers;
 
 namespace Sandbox.Client
 {
@@ -11,14 +11,17 @@ namespace Sandbox.Client
     {
         public SandboxClient( IObservable< Message > messages, IPublisher< Message > publisher )
         {
+            _messages = messages;
             _publisher = publisher;
             _subscription = messages.ObserveOn( _scheduler ).Subscribe( ExecuteCommands );
         }
 
+        private readonly IObservable< Message > _messages;
         private readonly IPublisher< Message > _publisher;
         private readonly EventLoopScheduler _scheduler = new EventLoopScheduler();
         private readonly IDisposable _subscription;
         private object _instance;
+        private CallHandler _callHandler;
 
         public void Dispose()
         {
@@ -33,18 +36,10 @@ namespace Sandbox.Client
                 case CreateObjectOfTypeCommad co:
                     var type = Assembly.LoadFile( co.AssemblyPath ).GetType( co.TypeFullName );
                     _instance = Activator.CreateInstance( type );
+                    _callHandler = CallHandler.CreateHandlerFor( type, _messages, _publisher );
                     break;
-                case MethodCallCommand mcc:
-                    try
-                    {
-                        var method = _instance.GetType().GetMethod( mcc.MethodName, mcc.Arguments.Select( it => it.GetType() ).ToArray() );
-                        _publisher.Publish( new MethodCallResultAnswer { AnswerTo = message.Number, Result = method.Invoke( _instance, mcc.Arguments ) } );
-                    }
-                    catch ( Exception ex )
-                    {
-                        _publisher.Publish( new MethodCallResultAnswer { Exception = ex } );
-                    }
-
+                default:
+                    _callHandler.HandleClientSideRequest( _instance, message );
                     break;
             }
         }

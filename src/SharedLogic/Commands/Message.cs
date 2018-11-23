@@ -6,7 +6,7 @@ namespace Sandbox.Commands
     [Serializable]
     public class Message
     {
-        private static volatile int messageNumber;
+        private static int messageNumber;
 
         public Message()
         {

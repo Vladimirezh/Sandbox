@@ -14,11 +14,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AssemblyResolveAnswer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AssemblyResolveMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\CreateObjectOfTypeCommad.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\EventCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\EventInvokeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\Message.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MethodCallCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MethodCallResultAnswer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\SubscribeToEventCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\TerminateCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\UnexpectedExceptionMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\UnsubscribeFromEventCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\CantResolveAssemblyException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Guard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\ProxyFactory.cs" />
@@ -28,6 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStreamFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\CallHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\DelegateFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\EventCallHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\InvocationHandlersExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\MethodCallHandler.cs" />
