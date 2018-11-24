@@ -11,9 +11,11 @@ namespace ConsolePlayground
 
             using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
+                calc.Instance.ActionEvent += () => Console.WriteLine( "ActionEvent" );
+                calc.Instance.Event += ( sender, args ) => Console.WriteLine( $"{sender} {args}" );
                 Console.WriteLine( "Connected" );
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
-               // calc.Instance.EHEvent += ( s, e ) => Console.WriteLine( e );
+                // calc.Instance.EHEvent += ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
                 //Console.ReadKey();
                 while ( true )
@@ -24,7 +26,7 @@ namespace ConsolePlayground
                         break;
                 }
 
-             //   calc.Instance.EHEvent -= ( s, e ) => Console.WriteLine( e );
+                //   calc.Instance.EHEvent -= ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
 
                 CallInstance( calc );
@@ -38,7 +40,7 @@ namespace ConsolePlayground
             for ( var i = 0; i < 100; i++ )
             {
                 Console.WriteLine( $"Add {calc.Instance.Add( i, 2 )}" );
-                Console.WriteLine( "Last i " + calc.Instance.LastI );
+                Console.WriteLine( "Last i " + calc.Instance.LastResult );
             }
         }
 
@@ -50,26 +52,27 @@ namespace ConsolePlayground
         public interface ICalculator
         {
             int Add( int a, int b );
-            string LastI { get; }
+            string LastResult { get; }
             event Action ActionEvent;
-            event EventHandler EHEvent;
+            event EventHandler Event;
         }
 
         public class Calculator : ICalculator
         {
             public int Add( int a, int b )
             {
-                LastI = a.ToString();
+                var sum = a + b;
                 OnAction();
-                OnEHEvent();
-                return a + b;
+                OnEvent();
+                LastResult = sum.ToString();
+                return sum;
             }
 
-            public string LastI { get; private set; }
+            public string LastResult { get; private set; }
 
-            public void OnEHEvent()
+            public void OnEvent()
             {
-                EHEvent?.Invoke( nameof( OnEHEvent ), new EventArgs() );
+                Event?.Invoke( nameof( OnEvent ), new EventArgs() );
             }
 
             public void OnAction()
@@ -78,7 +81,7 @@ namespace ConsolePlayground
             }
 
             public event Action ActionEvent;
-            public event EventHandler EHEvent;
+            public event EventHandler Event;
         }
     }
 }

@@ -10,6 +10,7 @@ var sandboxClientx86Build = Directory("./src/SandboxClient/bin/x86/Release");
 var sandboxClientx64Build = Directory("./src/SandboxClientx64/bin/x64/Release");
 var sandboxClientAnyCPUBuild = Directory("./src/SandboxClientAnyCPU/bin/Release");
 var nuspecDestFile = Directory("./Nuget") + File("Sandbox.nuspec");
+var buildVersion = System.Environment.GetEnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "1.0.0.0";
 
 Task("Clean")
         .Does(()=>{
@@ -29,6 +30,7 @@ Task("Restore-NuGet-Packages")
 
 Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
+    .IsDependentOn("SetVersion")
     .Does(() =>
 {
      Information("Start Build");
@@ -60,12 +62,22 @@ Task("CopyOutputToNugetFolder")
     CopyFile(sandboxBuild + dllFile, Directory("./Nuget/lib/net452/") + dllFile);
     CopyFile(File("Sandbox.nuspec"), nuspecDestFile);
 });
- 
+
+Task("SetVersion")
+   .Does(() => {
+       ReplaceRegexInFiles("./src/*/*/AssemblyInfo.cs", 
+                           "(?<=AssemblyVersion\\( \")(.*?)(?=\" \\))", 
+                           buildVersion);
+       ReplaceRegexInFiles("./src/*/*/AssemblyInfo.cs", 
+                           "(?<=AssemblyFileVersion\\( \")(.*?)(?=\" \\))", 
+                           buildVersion);
+   });
+    
 Task("CreateNugetPackage")
     .IsDependentOn("CopyOutputToNugetFolder")
     .Does(()=>
 {
-    var buildVersion = System.Environment.GetEnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "1.0.0";
+    
     Information("Building Sandbox.{0}.nupkg", buildVersion);
     var nuGetPackSettings = new NuGetPackSettings {
         Version  = buildVersion,
@@ -77,9 +89,3 @@ Task("CreateNugetPackage")
 
 
 RunTarget(target);
-
-
-string ToolsExePath(string exeFileName) {
-    var exePath = System.IO.Directory.GetFiles(@".\Tools", exeFileName, SearchOption.AllDirectories).FirstOrDefault();
-    return exePath;
-}
