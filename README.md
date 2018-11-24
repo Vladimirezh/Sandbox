@@ -9,22 +9,46 @@ Sandbox based on named pipes, binary serialization and observers.
 For example, you have Calculator class and ICalculator interface
 
 ```
+         public interface ICalculator
+        {
+            int Add( int a, int b );
+            string LastResult { get; }
+            event Action ActionEvent;
+            event EventHandler Event;
+        }
+
         public class Calculator : ICalculator
         {
-            public int Add(int a, int b)
+            public int Add( int a, int b )
             {
-                return a + b;
+                var sum = a + b;
+                OnAction();
+                OnEvent();
+                LastResult = sum.ToString();
+                return sum;
             }
-        }
-        
-        public interface ICalculator
-        {
-           int Add(int a, int b);
+
+            public string LastResult { get; private set; }
+
+            public void OnEvent()
+            {
+                Event?.Invoke( nameof( OnEvent ), new EventArgs() );
+            }
+
+            public void OnAction()
+            {
+                ActionEvent?.Invoke();
+            }
+
+            public event Action ActionEvent;
+            public event EventHandler Event;
         }
 ```
 Now, run it in Sandbox and call methods
 ```
 var calcSandbox = new SandboxBuilder().WithClient(Platform.x86).Build<ICalculator, Calculator>();
+calcSandbox.Instance.ActionEvent += () => Console.WriteLine( "ActionEvent" );
+calcSandbox.Instance.Event += ( sender, args ) => Console.WriteLine( $"{sender} {args}" );
 calcSandbox.Instance.Add(10,20);
 ```
 Easy!
