@@ -34,7 +34,7 @@ namespace Sandbox.Serializer
             {//TODO
                 if (assemblyName.Contains("339c247525941d52"))
                     return Assembly.GetExecutingAssembly().GetType(typeName);
-               
+
                 var assembly = Assembly.Load(assemblyName);
                 Console.WriteLine($"{typeName},{assemblyName}");
                 return FormatterServices.GetTypeFromAssembly(assembly, typeName);

@@ -44,6 +44,7 @@ namespace Sandbox.Server.Job
         [return: MarshalAs( UnmanagedType.Bool )]
         private static extern bool CloseHandle( IntPtr hObject );
 
+        // ReSharper disable once UnusedParameter.Local
         private void Dispose( bool disposing )
         {
             if ( disposed )
@@ -58,9 +59,14 @@ namespace Sandbox.Server.Job
             handle = IntPtr.Zero;
         }
 
-        public bool AddProcess( IntPtr processHandle )
+        ~Job()
         {
-            return AssignProcessToJobObject( handle, processHandle );
+            Dispose( false );
+        }
+
+        public void AddProcess( IntPtr processHandle )
+        {
+            AssignProcessToJobObject( handle, processHandle );
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Sandbox.Server
         private Platform clientPlatform;
         private bool createClient;
         private ISerializer _serializer = new BinaryFormatterSerializer();
+        private readonly string fileName = Path.GetTempFileName();
 
         public SandboxBuilder WithSerializer( ISerializer serializer )
         {
@@ -54,7 +55,6 @@ namespace Sandbox.Server
 
         private Job.Job CreateAndRunClient()
         {
-            var fileName = Path.GetTempFileName() + ".exe";
             switch ( clientPlatform )
             {
                 case Platform.x86:

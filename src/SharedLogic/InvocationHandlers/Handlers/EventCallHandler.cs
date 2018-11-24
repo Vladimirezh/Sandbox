@@ -39,7 +39,7 @@ namespace Sandbox.InvocationHandlers
                     if (_events[eventName].Count == 0)
                         _messagePublisher.Publish(new UnsubscribeFromEventCommand { EventName = eventName });
                 }
-            }            
+            }
             else
                 return Successor?.HandleServerSideRequest(mcm);
             return null;

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using Sandbox.Server;
 
 namespace ConsolePlayground
@@ -23,15 +20,15 @@ namespace ConsolePlayground
                 {
                     CallInstance( calc );
 
-                    if ( Console.ReadKey().Key == ConsoleKey.Escape )
+                    if ( Console.ReadKey().Key == ConsoleKey.Q )
                         break;
                 }
 
              //   calc.Instance.EHEvent -= ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
-                
+
                 CallInstance( calc );
-                
+
                 Console.ReadKey();
             }
         }

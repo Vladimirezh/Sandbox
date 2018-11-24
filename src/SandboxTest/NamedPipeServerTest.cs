@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -243,11 +244,11 @@ namespace SandboxTest
             }
         }
 
-        private static void VerifyMessagePublishing( byte[] messageArray, Mock< INamedPipeStream > stream )
+        private static void VerifyMessagePublishing( IReadOnlyCollection< byte > messageArray, Mock< INamedPipeStream > stream )
         {
-            var sizeOfMessage = messageArray.Length + sizeof( int );
+            var sizeOfMessage = messageArray.Count + sizeof( int );
             stream.Verify(
-                it => it.WriteAsync( It.Is< byte[] >( arr => arr.Length == sizeOfMessage && arr.SequenceEqual( BitConverter.GetBytes( messageArray.Length ).Concat( messageArray ) ) ), 0, sizeOfMessage,
+                it => it.WriteAsync( It.Is< byte[] >( arr => arr.Length == sizeOfMessage && arr.SequenceEqual( BitConverter.GetBytes( messageArray.Count ).Concat( messageArray ) ) ), 0, sizeOfMessage,
                     It.IsAny< CancellationToken >() ), Times.Once );
         }
 

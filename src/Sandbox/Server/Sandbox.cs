@@ -17,7 +17,7 @@ namespace Sandbox.Server
             Guard.NotNull( messagePublisher );
             Guard.NotNull( messagesObservable );
             _callHandler = CallHandler.CreateHandlerFor< TInterface >( messagesObservable, messagePublisher );
-            Instance = ServerProxy< TInterface >.Create( _callHandler );
+            Instance = InterfaceProxy< TInterface >.Create( _callHandler );
             _commandsSubscription = messagesObservable.Subscribe( ExecuteCommand );
             messagePublisher.Publish( new CreateObjectOfTypeCommad( typeof( TObject ).FullName, typeof( TObject ).Assembly.Location ) );
         }
@@ -26,7 +26,7 @@ namespace Sandbox.Server
         private readonly CompositeDisposable _disposeHandlers = new CompositeDisposable();
         private readonly Subject< Exception > _exceptionHandlerSubject = new Subject< Exception >();
         private readonly IPublisher< Message > _messagePublisher;
-        private CallHandler _callHandler;
+        private readonly CallHandler _callHandler;
 
         public IObservable< Exception > UnexpectedExceptionHandler => _exceptionHandlerSubject;
 

@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.Remoting.Messaging;
-using System.Threading.Tasks;
 using Sandbox.Commands;
 using Sandbox.Common;
 
@@ -22,27 +22,15 @@ namespace Sandbox.InvocationHandlers
         internal override object HandleServerSideRequest( IMethodCallMessage mcm )
         {
             var methodCallCommand = new MethodCallCommand( mcm.MethodName, mcm.Args );
-            var task = new TaskCompletionSource< object >();
-            using ( _messagesObservable.OfType< MethodCallResultAnswer >().
-                                        Where( it => it.AnswerTo == methodCallCommand.Number ).
-                                        Take( 1 ).
-                                        Subscribe( it =>
-                                                   {
-                                                       if ( it.Exception != null )
-                                                           task.SetException( it.Exception );
-                                                       else
-                                                           task.SetResult( it.Result );
-                                                   }, ex => task.SetException( ex ), () =>
-                                                                                     {
-                                                                                         if ( task.Task.Status == TaskStatus.Running )
-                                                                                             task.SetException( new SandboxTerminatedException() );
-                                                                                     } ) )
-            {
-                _messagePublisher.Publish( methodCallCommand );
-                return task.Task.Result;
-            }
 
-           
+            var task = _messagesObservable.OfType< MethodCallResultAnswer >().Take( 1 ).Where( it => it.AnswerTo == methodCallCommand.Number ).ToTask();
+            _messagePublisher.Publish( methodCallCommand );
+            var result = task.Result;
+            if ( result == null )
+                throw new SandboxTerminatedException();
+            if ( result.Exception != null )
+                throw result.Exception;
+            return result.Result;
         }
 
         internal override void HandleClientSideRequest( object instance, Message msg )

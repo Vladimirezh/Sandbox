@@ -9,6 +9,7 @@
     <Import_RootNamespace>SharedLogic</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Client\NamedPipedClientFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Client\SandboxClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Client\SandboxClientBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AssemblyResolveAnswer.cs" />
@@ -31,15 +32,21 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\UnicastSubject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INamedPipeStreamFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\CallHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\DelegateFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\EventCallHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\InvocationHandlersExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\MethodCallHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\ServerProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\InterfaceProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPublisher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NamedPipeServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serializer\BinaryFormatterSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serializer\ISerializer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\Handlers\CallHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\Handlers\MethodCallHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\Handlers\EventCallHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Client\TernimatePolicy\ExitPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Client\TernimatePolicy\ITerminatePolicy.cs" />
   </ItemGroup>
 </Project>

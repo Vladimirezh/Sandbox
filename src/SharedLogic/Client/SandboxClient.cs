@@ -1,5 +1,6 @@
 using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using Sandbox.Commands;
@@ -22,9 +23,16 @@ namespace Sandbox.Client
         private readonly IDisposable _subscription;
         private object _instance;
         private CallHandler _callHandler;
+        private readonly CompositeDisposable _disposeHandlers = new CompositeDisposable();
+
+        public void AddDisposeHandler( IDisposable disposable )
+        {
+            _disposeHandlers.Add( disposable );
+        }
 
         public void Dispose()
         {
+            _disposeHandlers.Dispose();
             _scheduler?.Dispose();
             _subscription?.Dispose();
         }

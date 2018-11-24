@@ -1,14 +1,13 @@
 using System;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-using Sandbox.Commands;
 using Sandbox.Common;
 
 namespace Sandbox.InvocationHandlers
 {
-    public sealed class ServerProxy< T > : RealProxy
+    public sealed class InterfaceProxy< T > : RealProxy
     {
-        public ServerProxy( CallHandler handler ) : base( typeof( T ) )
+        public InterfaceProxy( CallHandler handler ) : base( typeof( T ) )
         {
             _callHandler = handler;
         }
@@ -42,7 +41,7 @@ namespace Sandbox.InvocationHandlers
         public static T Create( CallHandler handler )
         {
             Guard.IsInterface< T >();
-            var proxy = new ServerProxy< T >( handler );
+            var proxy = new InterfaceProxy< T >( handler );
             return ( T ) proxy.GetTransparentProxy();
         }
     }

@@ -1,9 +1,8 @@
 using System;
-using System.IO.Pipes;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Sandbox.Commands;
 using Sandbox.Common;
 using Sandbox.Serializer;
@@ -19,6 +18,9 @@ namespace Sandbox.Client
 
         private readonly string _address;
         private ISerializer _serializer = new BinaryFormatterSerializer();
+        private PublishedMessagesFormatter _publisher;
+        private IObservable< Message > _messages;
+        private ITerminatePolicy _terminatePolicy = new ExitPolicy();
 
         public SandboxClientBuilder WithSerializer( ISerializer serializer )
         {
@@ -26,88 +28,44 @@ namespace Sandbox.Client
             return this;
         }
 
+        public SandboxClientBuilder WithTerminatePolicy( ITerminatePolicy terminatePolicy )
+        {
+            _terminatePolicy = terminatePolicy;
+            return this;
+        }
+
         public SandboxClient Build()
         {
             var server = new NamedPipeServer( new NamedPipedClientFactory(), _address );
+            _publisher = new PublishedMessagesFormatter( server, _serializer );
+            _messages = server.Select( it => _serializer.Deserialize( it ) );
+            var client = new SandboxClient( _messages, _publisher );
 
-            var publisher = new PublishedMessagesFormatter( server, _serializer );
+            client.AddDisposeHandler( _messages.OfType< TerminateCommand >().Subscribe( it => _terminatePolicy.Terminate(), () => _terminatePolicy.Terminate() ) );
 
-            var observable = server.Select( it => _serializer.Deserialize( it ) );
-
-            var client = new SandboxClient( observable, publisher );
-            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => ResolveAssembly( e, observable, publisher );
-            observable.OfType< TerminateCommand >().Subscribe( it => Environment.Exit( 0 ), () => Environment.Exit( 0 ) );
-            AppDomain.CurrentDomain.UnhandledException += ( s, e ) => CurrentDomainOnUnhandledException( e, publisher );
-
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+            client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly ) );
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException ) );
             return client;
         }
 
-        private static Assembly ResolveAssembly( ResolveEventArgs args, IObservable< Message > observable, PublishedMessagesFormatter publisher )
+        private void CurrentDomainOnUnhandledException( object sender, UnhandledExceptionEventArgs e )
         {
-            if ( args.RequestingAssembly == null )
+            _publisher.Publish( new UnexpectedExceptionMessage { Exception = e.ExceptionObject as Exception } );
+            _terminatePolicy.Terminate();
+        }
+
+        private Assembly ResolveAssembly( object sender, ResolveEventArgs args )
+        {
+            if ( args.RequestingAssembly == null || _messages == null || _publisher == null )
                 return null;
 
             var resolveMessage = new AssemblyResolveMessage { RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name };
-            var task = new TaskCompletionSource< AssemblyResolveAnswer >();
-            using ( observable.OfType< AssemblyResolveAnswer >().Where( it => it.AnswerTo == resolveMessage.Number ).Take( 1 ).Subscribe( it => task.SetResult( it ) ) )
-            {
-                publisher.Publish( resolveMessage );
-                var answer = task.Task.Result;
-                if ( answer.Handled )
-                    return Assembly.LoadFile( answer.Location );
-            }
-
-            return null;
-        }
-
-        private static void CurrentDomainOnUnhandledException( UnhandledExceptionEventArgs e, IPublisher< Message > publishedMessagesFormatter )
-        {
-            publishedMessagesFormatter.Publish( new UnexpectedExceptionMessage { Exception = e.ExceptionObject as Exception } );
-            Environment.Exit( 0 );
-        }
-    }
-
-    internal sealed class NamedPipedClientFactory : INamedPipeStreamFactory
-    {
-        public INamedPipeStream CreateStream( string address )
-        {
-            return new NamedPipeSandboxClientStream( address );
-        }
-
-        private sealed class NamedPipeSandboxClientStream : INamedPipeStream
-        {
-            public NamedPipeSandboxClientStream( string address )
-            {
-                stream = new NamedPipeClientStream( ".", address, PipeDirection.InOut, PipeOptions.Asynchronous );
-            }
-
-            private readonly NamedPipeClientStream stream;
-
-            public void Dispose()
-            {
-                stream.Dispose();
-            }
-
-            public Task ConnectionAsync( CancellationToken cancellationToken )
-            {
-                return Task.Run( () => stream.Connect(), cancellationToken );
-                //  return stream.ConnectAsync(cancellationToken);
-            }
-
-            public Task< int > ReadAsync( byte[] buffer, int offset, int count, CancellationToken cancellationToken )
-            {
-                return stream.ReadAsync( buffer, offset, count, cancellationToken );
-            }
-
-            public Task WriteAsync( byte[] buffer, int offset, int count, CancellationToken cancellationToken )
-            {
-                return stream.WriteAsync( buffer, offset, count, cancellationToken );
-            }
-
-            public Task FlushAsync( CancellationToken cancellationToken )
-            {
-                return stream.FlushAsync( cancellationToken );
-            }
+            var task = _messages.OfType< AssemblyResolveAnswer >().Where( it => it.AnswerTo == resolveMessage.Number ).Take( 1 ).ToTask();
+            _publisher.Publish( resolveMessage );
+            var answer = task.Result;
+            return answer?.Handled == true ? Assembly.LoadFile( answer.Location ) : null;
         }
     }
 }
