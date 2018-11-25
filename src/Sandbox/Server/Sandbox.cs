@@ -67,7 +67,7 @@ namespace Sandbox.Server
                     break;
                 }
                 default:
-                    _callHandler.HandleClientSideRequest( Instance, it );
+                    _callHandler.HandleMessage( Instance, it );
                     break;
             }
         }

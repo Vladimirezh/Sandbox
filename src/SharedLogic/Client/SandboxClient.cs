@@ -47,7 +47,7 @@ namespace Sandbox.Client
                     _callHandler = CallHandler.CreateHandlerFor( type, _messages, _publisher );
                     break;
                 default:
-                    _callHandler.HandleClientSideRequest( _instance, message );
+                    _callHandler.HandleMessage( _instance, message );
                     break;
             }
         }

@@ -19,7 +19,7 @@ namespace Sandbox.InvocationHandlers
             _messagePublisher = messagePublisher;
         }
 
-        internal override object HandleServerSideRequest( IMethodCallMessage mcm )
+        public override object HandleMethodCall( IMethodCallMessage mcm )
         {
             var methodCallCommand = new MethodCallCommand( mcm.MethodName, mcm.Args );
 
@@ -33,7 +33,7 @@ namespace Sandbox.InvocationHandlers
             return result.Result;
         }
 
-        internal override void HandleClientSideRequest( object instance, Message msg )
+        public override void HandleMessage( object instance, Message msg )
         {
             if ( msg is MethodCallCommand mcc )
             {
@@ -49,7 +49,7 @@ namespace Sandbox.InvocationHandlers
             }
             else
             {
-                Successor?.HandleClientSideRequest( instance, msg );
+                Successor?.HandleMessage( instance, msg );
             }
         }
     }

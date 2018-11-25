@@ -110,7 +110,7 @@
         <Compile Include="Common\TestException.cs"/>
         <Compile Include="Instances\ITestClass.cs"/>
         <Compile Include="Instances\TestClass.cs"/>
-        <Compile Include="InvocationHandler\ServerProxyTest.cs"/>
+        <Compile Include="InvocationHandler\InterfaceProxyTest.cs"/>
         <Compile Include="NamedPipeServerTest.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Serializer\BinaryFormatterSerializerTest.cs"/>

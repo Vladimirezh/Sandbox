@@ -26,7 +26,7 @@ namespace Sandbox.InvocationHandlers
                 return null;
             try
             {
-                return new ReturnMessage( _callHandler.HandleServerSideRequest( methodCall ), null, 0, methodCall.LogicalCallContext, methodCall );
+                return new ReturnMessage( _callHandler.HandleMethodCall( methodCall ), null, 0, methodCall.LogicalCallContext, methodCall );
             }
             catch ( AggregateException ex )
             {

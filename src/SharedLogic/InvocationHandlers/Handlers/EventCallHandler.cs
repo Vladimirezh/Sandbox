@@ -9,84 +9,85 @@ namespace Sandbox.InvocationHandlers
 {
     internal sealed class EventCallHandler : CallHandler
     {
-        private readonly IPublisher<Message> _messagePublisher;
-        private readonly Dictionary<string, List<Delegate>> _events;
+        private readonly IPublisher< Message > _messagePublisher;
+        private readonly Dictionary< string, List< Delegate > > _events;
         private readonly object _locker = new object();
 
-        public EventCallHandler(Type type, IPublisher<Message> messagePublisher)
+        public EventCallHandler( Type type, IPublisher< Message > messagePublisher )
         {
-            _events = type.GetEvents().ToDictionary(it => it.Name, it => new List<Delegate>());
+            _events = type.GetEvents().ToDictionary( it => it.Name, it => new List< Delegate >() );
             _messagePublisher = messagePublisher;
         }
 
-        internal override object HandleServerSideRequest(IMethodCallMessage mcm)
+        public override object HandleMethodCall( IMethodCallMessage mcm )
         {
             var eventName = mcm.GetEventName();
-            if (mcm.IsSubscribeToEvent())
+            if ( mcm.IsSubscribeToEvent() )
             {
-                lock (_locker)
+                lock ( _locker )
                 {
-                    if (_events[eventName].Count == 0)
-                        _messagePublisher.Publish(new SubscribeToEventCommand { EventName = eventName });
-                    _events[eventName].Add((Delegate)mcm.Args[0]);
+                    if ( _events[ eventName ].Count == 0 )
+                        _messagePublisher.Publish( new SubscribeToEventCommand { EventName = eventName } );
+                    _events[ eventName ].Add( ( Delegate ) mcm.Args[ 0 ] );
                 }
             }
-            else if (mcm.IsUnsubscribeFromEvent())
+            else if ( mcm.IsUnsubscribeFromEvent() )
             {
-                lock (_locker)
+                lock ( _locker )
                 {
-                    _events[eventName].Remove((Delegate)mcm.Args[0]);
-                    if (_events[eventName].Count == 0)
-                        _messagePublisher.Publish(new UnsubscribeFromEventCommand { EventName = eventName });
+                    _events[ eventName ].Remove( ( Delegate ) mcm.Args[ 0 ] );
+                    if ( _events[ eventName ].Count == 0 )
+                        _messagePublisher.Publish( new UnsubscribeFromEventCommand { EventName = eventName } );
                 }
             }
             else
-                return Successor?.HandleServerSideRequest(mcm);
+                return Successor?.HandleMethodCall( mcm );
+
             return null;
         }
 
-        internal override void HandleClientSideRequest(object instance, Message msg)
+        public override void HandleMessage( object instance, Message msg )
         {
-            switch (msg)
+            switch ( msg )
             {
                 case SubscribeToEventCommand sec:
-                    lock (_locker)
+                    lock ( _locker )
                     {
-                        var eventInfo = instance.GetType().GetEvent(sec.EventName);
-                        var del = DelegateFactory.Create(eventInfo, EventHandler);
-                        _events[sec.EventName].Add(del);
-                        eventInfo.AddEventHandler(instance, del);
+                        var eventInfo = instance.GetType().GetEvent( sec.EventName );
+                        var del = DelegateFactory.Create( eventInfo, EventHandler );
+                        _events[ sec.EventName ].Add( del );
+                        eventInfo.AddEventHandler( instance, del );
                     }
 
                     break;
                 case UnsubscribeFromEventCommand uec:
-                    lock (_locker)
+                    lock ( _locker )
                     {
-                        var eventInfo = instance.GetType().GetEvent(uec.EventName);
-                        var del = _events[uec.EventName][0];
-                        _events[uec.EventName].Remove(del);
-                        eventInfo.RemoveEventHandler(instance, del);
+                        var eventInfo = instance.GetType().GetEvent( uec.EventName );
+                        var del = _events[ uec.EventName ][ 0 ];
+                        _events[ uec.EventName ].Remove( del );
+                        eventInfo.RemoveEventHandler( instance, del );
                     }
 
                     break;
                 case EventInvokeCommand eic:
-                    List<Delegate> invokeList;
+                    List< Delegate > invokeList;
 
-                    lock (_locker)
-                        invokeList = _events[eic.EventName].ToList();
+                    lock ( _locker )
+                        invokeList = _events[ eic.EventName ].ToList();
 
-                    invokeList.ForEach(it => it.DynamicInvoke(eic.Args));
+                    invokeList.ForEach( it => it.DynamicInvoke( eic.Args ) );
                     break;
                 default:
 
-                    Successor?.HandleClientSideRequest(instance, msg);
+                    Successor?.HandleMessage( instance, msg );
                     break;
             }
         }
 
-        private void EventHandler(string eventName, object[] args)
+        private void EventHandler( string eventName, object[] args )
         {
-            _messagePublisher.Publish(new EventInvokeCommand { EventName = eventName, Args = args });
+            _messagePublisher.Publish( new EventInvokeCommand { EventName = eventName, Args = args } );
         }
     }
 }

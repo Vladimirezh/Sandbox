@@ -18,5 +18,8 @@ namespace SandboxTest.Instances
         {
             throw new NotImplementedException();
         }
+
+        public event Action EventAction;
+        public event EventHandler< EventArgs > EventWithHandler;
     }
 }
