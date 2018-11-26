@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -11,33 +13,44 @@ namespace Sandbox.Serializer
     {
         private readonly BinaryFormatter _formatter = new BinaryFormatter { Binder = new Binder() };
 
-        public byte[] Serialize(Message message)
+        public byte[] Serialize( Message message )
         {
-            using (var ms = new MemoryStream())
+            using ( var ms = new MemoryStream() )
             {
-                _formatter.Serialize(ms, message);
+                _formatter.Serialize( ms, message );
                 return ms.ToArray();
             }
         }
 
-        public Message Deserialize(byte[] bytes)
+        public Message Deserialize( byte[] bytes )
         {
-            using (var ms = new MemoryStream(bytes))
+            using ( var ms = new MemoryStream( bytes ) )
             {
-                return (Message)_formatter.Deserialize(ms);
+                return ( Message ) _formatter.Deserialize( ms );
             }
         }
 
         private sealed class Binder : SerializationBinder
         {
-            public override Type BindToType(string assemblyName, string typeName)
-            {//TODO
-                if (assemblyName.Contains("339c247525941d52"))
-                    return Assembly.GetExecutingAssembly().GetType(typeName);
+            private readonly string pubKey;
+            private readonly Dictionary< Tuple< string, string >, Type > types = new Dictionary< Tuple< string, string >, Type >();
 
-                var assembly = Assembly.Load(assemblyName);
-                Console.WriteLine($"{typeName},{assemblyName}");
-                return FormatterServices.GetTypeFromAssembly(assembly, typeName);
+            public Binder()
+            {
+                pubKey = GetType().Assembly.FullName.Split( '=' ).Last();
+            }
+
+            public override Type BindToType( string assemblyName, string typeName )
+            {
+                var key = Tuple.Create( assemblyName, typeName );
+                if ( types.ContainsKey( key ) )
+                    return types[ key ];
+
+                if ( assemblyName.EndsWith( pubKey, StringComparison.Ordinal ) )
+                    return types[ key ] = Assembly.GetExecutingAssembly().GetType( typeName );
+
+                var assembly = Assembly.Load( assemblyName );
+                return types[ key ] = FormatterServices.GetTypeFromAssembly( assembly, typeName );
             }
         }
     }

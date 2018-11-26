@@ -27,7 +27,7 @@ namespace SandboxTest.InvocationHandler
         private readonly Subject< Message > commandsObservable = new Subject< Message >();
         private readonly ITestClass instance;
         private readonly Mock< IPublisher< Message > > publisher;
-        private CallHandler _callHandler;
+        private readonly CallHandler _callHandler;
 
         private void PostEmptyAnswerTo( Message message )
         {
