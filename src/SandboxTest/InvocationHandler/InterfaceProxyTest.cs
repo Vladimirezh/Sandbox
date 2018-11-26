@@ -58,7 +58,7 @@ namespace SandboxTest.InvocationHandler
             for ( var i = 0; i < 10; i++ )
                 instance.EventAction += instanceOnEventAction;
 
-            for ( int i = 0; i < 9; i++ )
+            for ( var i = 0; i < 9; i++ )
                 instance.EventAction -= instanceOnEventAction;
 
             Expression< Action< IPublisher< Message > > > unsubCommand = it => it.Publish( It.Is< UnsubscribeFromEventCommand >( msg => msg.EventName == nameof( ITestClass.EventAction ) ) );
