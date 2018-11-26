@@ -11,13 +11,10 @@ namespace ConsolePlayground
 
             using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
-                calc.Instance.ActionEvent += () => Console.WriteLine( "ActionEvent" );
-                calc.Instance.Event += ( sender, args ) => Console.WriteLine( $"{sender} {args}" );
-                Console.WriteLine( "Connected" );
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
-                // calc.Instance.EHEvent += ( s, e ) => Console.WriteLine( e );
+
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
-                //Console.ReadKey();
+                calc.Instance.Event += InstanceOnEvent;
                 while ( true )
                 {
                     CallInstance( calc );
@@ -26,13 +23,17 @@ namespace ConsolePlayground
                         break;
                 }
 
-                //   calc.Instance.EHEvent -= ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
-
+                calc.Instance.Event -= InstanceOnEvent;
                 CallInstance( calc );
 
                 Console.ReadKey();
             }
+        }
+
+        private static void InstanceOnEvent( object sender, EventArgs e )
+        {
+            Console.WriteLine( $"{sender} {e}" );
         }
 
         private static void CallInstance( Sandbox< ICalculator, Calculator > calc )
@@ -40,7 +41,7 @@ namespace ConsolePlayground
             for ( var i = 0; i < 100; i++ )
             {
                 Console.WriteLine( $"Add {calc.Instance.Add( i, 2 )}" );
-                Console.WriteLine( "Last i " + calc.Instance.LastResult );
+                Console.WriteLine( "Last result " + calc.Instance.LastResult );
             }
         }
 
