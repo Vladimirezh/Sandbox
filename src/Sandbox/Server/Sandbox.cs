@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using Sandbox.Commands;
@@ -18,7 +19,7 @@ namespace Sandbox.Server
             Guard.NotNull( messagesObservable );
             _callHandler = CallHandler.CreateHandlerFor< TInterface >( messagesObservable, messagePublisher );
             Instance = InterfaceProxy< TInterface >.Create( _callHandler );
-            _commandsSubscription = messagesObservable.Subscribe( ExecuteCommand );
+            _commandsSubscription = messagesObservable.Subscribe( ExecuteCommand, ex => _exceptionHandlerSubject.OnNext( ex ), () => _onProcessEnded.OnNext( Unit.Default ) );
             messagePublisher.Publish( new CreateObjectOfTypeCommad( typeof( TObject ).FullName, typeof( TObject ).Assembly.Location ) );
         }
 
@@ -27,8 +28,9 @@ namespace Sandbox.Server
         private readonly Subject< Exception > _exceptionHandlerSubject = new Subject< Exception >();
         private readonly IPublisher< Message > _messagePublisher;
         private readonly CallHandler _callHandler;
-
+        private readonly Subject< Unit > _onProcessEnded = new Subject< Unit >();
         public IObservable< Exception > UnexpectedExceptionHandler => _exceptionHandlerSubject;
+        public IObservable< Unit > OnProcessEnded => _onProcessEnded;
 
         public TInterface Instance { get; }
 

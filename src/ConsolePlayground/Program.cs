@@ -12,12 +12,12 @@ namespace ConsolePlayground
             using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
-
+                calc.OnProcessEnded.Subscribe( it => Console.WriteLine( "Proccess ended" ) );
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
                 calc.Instance.Event += InstanceOnEvent;
                 while ( true )
                 {
-                    CallInstance( calc );
+                  //  CallInstance( calc );
 
                     if ( Console.ReadKey().Key == ConsoleKey.Q )
                         break;
