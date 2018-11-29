@@ -20,6 +20,7 @@ namespace Sandbox.Server
             _callHandler = CallHandler.CreateHandlerFor< TInterface >( messagesObservable, messagePublisher );
             Instance = InterfaceProxy< TInterface >.Create( _callHandler );
             _commandsSubscription = messagesObservable.Subscribe( ExecuteCommand, ex => _exceptionHandlerSubject.OnNext( ex ), () => _onProcessEnded.OnNext( Unit.Default ) );
+            _disposeHandlers.Add( _exceptionHandlerSubject.Subscribe( ex => _onProcessEnded.OnNext( Unit.Default ) ) );
             messagePublisher.Publish( new CreateObjectOfTypeCommad( typeof( TObject ).FullName, typeof( TObject ).Assembly.Location ) );
         }
 
