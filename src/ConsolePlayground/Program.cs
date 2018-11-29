@@ -15,9 +15,11 @@ namespace ConsolePlayground
                 calc.OnProcessEnded.Subscribe( it => Console.WriteLine( "Proccess ended" ) );
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
                 calc.Instance.Event += InstanceOnEvent;
+                calc.Instance.ActionCalcArg += InstanceOnActionCalcArg;
+
                 while ( true )
                 {
-                  //  CallInstance( calc );
+                    CallInstance( calc );
 
                     if ( Console.ReadKey().Key == ConsoleKey.Q )
                         break;
@@ -25,10 +27,16 @@ namespace ConsolePlayground
 
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
                 calc.Instance.Event -= InstanceOnEvent;
+                calc.Instance.ActionCalcArg -= InstanceOnActionCalcArg;
                 CallInstance( calc );
 
                 Console.ReadKey();
             }
+        }
+
+        private static void InstanceOnActionCalcArg( object sender, CalcArg e )
+        {
+            Console.WriteLine( $"{sender} , {e.Result}" );
         }
 
         private static void InstanceOnEvent( object sender, EventArgs e )
@@ -56,6 +64,7 @@ namespace ConsolePlayground
             string LastResult { get; }
             event Action ActionEvent;
             event EventHandler Event;
+            event EventHandler< CalcArg > ActionCalcArg;
         }
 
         public class Calculator : ICalculator
@@ -65,6 +74,7 @@ namespace ConsolePlayground
                 var sum = a + b;
                 OnAction();
                 OnEvent();
+                ActionCalcArg?.Invoke( null, new CalcArg { Result = sum } );
                 LastResult = sum.ToString();
                 return sum;
             }
@@ -83,6 +93,13 @@ namespace ConsolePlayground
 
             public event Action ActionEvent;
             public event EventHandler Event;
+            public event EventHandler< CalcArg > ActionCalcArg;
+        }
+
+        [Serializable]
+        public struct CalcArg
+        {
+            public int Result { set; get; }
         }
     }
 }

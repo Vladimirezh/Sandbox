@@ -9,11 +9,12 @@ namespace Sandbox.InvocationHandlers
     {
         public static Delegate Create( EventInfo e, Action< string, object[] > actionToCall )
         {
-            var parameters = e.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+            var parameters = e.EventHandlerType.GetMethod( "Invoke" ).GetParameters().Select( p => Expression.Parameter( p.ParameterType, p.Name ) ).ToList();
             var methodInfo = actionToCall.GetType().GetMethod( "Invoke" ) ?? throw new ArgumentNullException();
-            var exp = Expression.Call(Expression.Constant(actionToCall), methodInfo, Expression.Constant(e.Name), Expression.NewArrayInit(typeof(object), parameters));
-            var lambda = Expression.Lambda(exp, parameters);
-            return Delegate.CreateDelegate(e.EventHandlerType, lambda.Compile(), "Invoke", false);
+            var exp = Expression.Call( Expression.Constant( actionToCall ), methodInfo, Expression.Constant( e.Name ),
+                Expression.NewArrayInit( typeof( object ), parameters.Select( it => it.Type.IsValueType ? ( Expression ) Expression.Convert( it, typeof( object ) ) : it ) ) );
+            var lambda = Expression.Lambda( exp, parameters );
+            return Delegate.CreateDelegate( e.EventHandlerType, lambda.Compile(), "Invoke", false );
         }
     }
 }

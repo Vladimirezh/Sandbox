@@ -21,5 +21,6 @@ namespace SandboxTest.Instances
 
         public event Action EventAction;
         public event EventHandler< EventArgs > EventWithHandler;
+        public event EventHandler< EventArgsStruct > EventWithStructArg;
     }
 }
