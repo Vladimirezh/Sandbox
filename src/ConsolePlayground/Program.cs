@@ -11,13 +11,10 @@ namespace ConsolePlayground
 
             using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
-                calc.Instance.ActionEvent += () => Console.WriteLine( "ActionEvent" );
-                calc.Instance.Event += ( sender, args ) => Console.WriteLine( $"{sender} {args}" );
                 Console.WriteLine( "Connected" );
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
-                // calc.Instance.EHEvent += ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
-                //Console.ReadKey();
+
                 while ( true )
                 {
                     CallInstance( calc );
@@ -26,7 +23,6 @@ namespace ConsolePlayground
                         break;
                 }
 
-                //   calc.Instance.EHEvent -= ( s, e ) => Console.WriteLine( e );
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
 
                 CallInstance( calc );

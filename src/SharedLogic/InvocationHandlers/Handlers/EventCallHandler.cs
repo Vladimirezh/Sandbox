@@ -2,29 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Sandbox.Commands;
+using Sandbox.Common;
 using SharedLogic.InvocationHandlers;
 
 namespace Sandbox.InvocationHandlers
 {
     internal sealed class EventCallHandler : CallHandler
     {
-        private readonly IPublisher< Message > _messagePublisher;
-        private readonly Dictionary< string, List< Delegate > > _events;
-        private readonly object _locker = new object();
-
         public EventCallHandler( Type type, IPublisher< Message > messagePublisher )
         {
             _events = type.GetEvents().ToDictionary( it => it.Name, it => new List< Delegate >() );
             _messagePublisher = messagePublisher;
         }
 
+        private readonly Dictionary< string, List< Delegate > > _events;
+        private readonly ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
+        private readonly IPublisher< Message > _messagePublisher;
+
         public override object HandleMethodCall( IMethodCallMessage mcm )
         {
-            var eventName = mcm.GetEventName();
             if ( mcm.IsSubscribeToEvent() )
             {
-                lock ( _locker )
+                var eventName = mcm.GetEventName();
+                using ( _locker.Lock() )
                 {
                     if ( _events[ eventName ].Count == 0 )
                         _messagePublisher.Publish( new SubscribeToEventCommand { EventName = eventName } );
@@ -33,7 +35,8 @@ namespace Sandbox.InvocationHandlers
             }
             else if ( mcm.IsUnsubscribeFromEvent() )
             {
-                lock ( _locker )
+                var eventName = mcm.GetEventName();
+                using ( _locker.Lock() )
                 {
                     _events[ eventName ].Remove( ( Delegate ) mcm.Args[ 0 ] );
                     if ( _events[ eventName ].Count == 0 )
@@ -51,7 +54,7 @@ namespace Sandbox.InvocationHandlers
             switch ( msg )
             {
                 case SubscribeToEventCommand sec:
-                    lock ( _locker )
+                    using ( _locker.Lock() )
                     {
                         var eventInfo = instance.GetType().GetEvent( sec.EventName );
                         var del = DelegateFactory.Create( eventInfo, EventHandler );
@@ -61,7 +64,7 @@ namespace Sandbox.InvocationHandlers
 
                     break;
                 case UnsubscribeFromEventCommand uec:
-                    lock ( _locker )
+                    using ( _locker.Lock() )
                     {
                         var eventInfo = instance.GetType().GetEvent( uec.EventName );
                         var del = _events[ uec.EventName ][ 0 ];
@@ -73,7 +76,7 @@ namespace Sandbox.InvocationHandlers
                 case EventInvokeCommand eic:
                     List< Delegate > invokeList;
 
-                    lock ( _locker )
+                    using ( _locker.Lock() )
                         invokeList = _events[ eic.EventName ].ToList();
 
                     invokeList.ForEach( it => it.DynamicInvoke( eic.Args ) );

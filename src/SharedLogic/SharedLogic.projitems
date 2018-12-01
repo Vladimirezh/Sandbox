@@ -25,6 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\UnexpectedExceptionMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\UnsubscribeFromEventCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\CantResolveAssemblyException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Guard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\ProxyFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\PublishedMessagesFormatter.cs" />

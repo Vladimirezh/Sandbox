@@ -1,3 +1,4 @@
+using System;
 using Sandbox.Commands;
 using Sandbox.Serializer;
 using Xunit;
@@ -16,7 +17,7 @@ namespace SandboxTest.Serializer
             CheckSerialization( serializer, new AssemblyResolveMessage() );
             const string notEmptyString = "test";
             CheckSerialization( serializer, new CreateObjectOfTypeCommad( notEmptyString, notEmptyString ) );
-            CheckSerialization( serializer, new MethodCallCommand( notEmptyString, new object[ 0 ] ) );
+            CheckSerialization( serializer, new MethodCallCommand( notEmptyString, new object[ 0 ], Guid.NewGuid().ToString() ) );
             CheckSerialization( serializer, new MethodCallResultAnswer() );
             CheckSerialization( serializer, new TerminateCommand() );
             CheckSerialization( serializer, new UnexpectedExceptionMessage() );

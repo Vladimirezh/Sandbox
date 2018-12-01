@@ -6,7 +6,7 @@ namespace Sandbox.InvocationHandlers
 {
     public abstract class CallHandler
     {
-        internal CallHandler Successor { get; set; }
+        protected CallHandler Successor { get; set; }
         public abstract object HandleMethodCall( IMethodCallMessage mcm );
         public abstract void HandleMessage( object instance, Message msg );
 
