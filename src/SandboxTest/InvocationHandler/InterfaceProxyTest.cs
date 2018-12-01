@@ -27,7 +27,7 @@ namespace SandboxTest.InvocationHandler
         private readonly Subject< Message > commandsObservable = new Subject< Message >();
         private readonly ITestClass instance;
         private readonly Mock< IPublisher< Message > > publisher;
-        private CallHandler _callHandler;
+        private readonly CallHandler _callHandler;
 
         private void PostEmptyAnswerTo( Message message )
         {
@@ -58,7 +58,7 @@ namespace SandboxTest.InvocationHandler
             for ( var i = 0; i < 10; i++ )
                 instance.EventAction += instanceOnEventAction;
 
-            for ( int i = 0; i < 9; i++ )
+            for ( var i = 0; i < 9; i++ )
                 instance.EventAction -= instanceOnEventAction;
 
             Expression< Action< IPublisher< Message > > > unsubCommand = it => it.Publish( It.Is< UnsubscribeFromEventCommand >( msg => msg.EventName == nameof( ITestClass.EventAction ) ) );
