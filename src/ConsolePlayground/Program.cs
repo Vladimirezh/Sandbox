@@ -11,9 +11,11 @@ namespace ConsolePlayground
 
             using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
-                Console.WriteLine( "Connected" );
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
+                calc.OnProcessEnded.Subscribe( it => Console.WriteLine( "Proccess ended" ) );
                 calc.Instance.ActionEvent += InstanceOnActionEvent;
+                calc.Instance.Event += InstanceOnEvent;
+                calc.Instance.ActionCalcArg += InstanceOnActionCalcArg;
 
                 while ( true )
                 {
@@ -24,11 +26,22 @@ namespace ConsolePlayground
                 }
 
                 calc.Instance.ActionEvent -= InstanceOnActionEvent;
-
+                calc.Instance.Event -= InstanceOnEvent;
+                calc.Instance.ActionCalcArg -= InstanceOnActionCalcArg;
                 CallInstance( calc );
 
                 Console.ReadKey();
             }
+        }
+
+        private static void InstanceOnActionCalcArg( object sender, CalcArg e )
+        {
+            Console.WriteLine( $"{sender} , {e.Result}" );
+        }
+
+        private static void InstanceOnEvent( object sender, EventArgs e )
+        {
+            Console.WriteLine( $"{sender} {e}" );
         }
 
         private static void CallInstance( Sandbox< ICalculator, Calculator > calc )
@@ -36,7 +49,7 @@ namespace ConsolePlayground
             for ( var i = 0; i < 100; i++ )
             {
                 Console.WriteLine( $"Add {calc.Instance.Add( i, 2 )}" );
-                Console.WriteLine( "Last i " + calc.Instance.LastResult );
+                Console.WriteLine( "Last result " + calc.Instance.LastResult );
             }
         }
 
@@ -51,6 +64,7 @@ namespace ConsolePlayground
             string LastResult { get; }
             event Action ActionEvent;
             event EventHandler Event;
+            event EventHandler< CalcArg > ActionCalcArg;
         }
 
         public class Calculator : ICalculator
@@ -60,6 +74,7 @@ namespace ConsolePlayground
                 var sum = a + b;
                 OnAction();
                 OnEvent();
+                ActionCalcArg?.Invoke( null, new CalcArg { Result = sum } );
                 LastResult = sum.ToString();
                 return sum;
             }
@@ -78,6 +93,13 @@ namespace ConsolePlayground
 
             public event Action ActionEvent;
             public event EventHandler Event;
+            public event EventHandler< CalcArg > ActionCalcArg;
+        }
+
+        [Serializable]
+        public struct CalcArg
+        {
+            public int Result { set; get; }
         }
     }
 }

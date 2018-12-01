@@ -66,6 +66,9 @@ namespace Sandbox
                     }
                 }
             }
+            catch ( TaskCanceledException )
+            {
+            }
             catch ( Exception ex )
             {
                 isException = true;
@@ -85,10 +88,16 @@ namespace Sandbox
 
         private static async Task SendMessageAsync( INamedPipeStream stream, byte[] message, CancellationToken cancellationToken )
         {
-            var messageToSend = new byte[ message.Length + sizeof( int ) ];
-            Array.Copy( BitConverter.GetBytes( message.Length ), messageToSend, sizeof( int ) );
-            Array.Copy( message, 0, messageToSend, sizeof( int ), message.Length );
-            await stream.WriteAsync( messageToSend, 0, messageToSend.Length, cancellationToken );
+            try
+            {
+                var messageToSend = new byte[ message.Length + sizeof( int ) ];
+                Array.Copy( BitConverter.GetBytes( message.Length ), messageToSend, sizeof( int ) );
+                Array.Copy( message, 0, messageToSend, sizeof( int ), message.Length );
+                await stream.WriteAsync( messageToSend, 0, messageToSend.Length, cancellationToken );
+            }
+            catch ( TaskCanceledException )
+            {
+            }
         }
     }
 }

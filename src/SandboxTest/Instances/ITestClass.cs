@@ -9,5 +9,6 @@ namespace SandboxTest.Instances
         int ReturnIntValue();
         event Action EventAction;
         event EventHandler< EventArgs > EventWithHandler;
+        event EventHandler< EventArgsStruct > EventWithStructArg;
     }
 }

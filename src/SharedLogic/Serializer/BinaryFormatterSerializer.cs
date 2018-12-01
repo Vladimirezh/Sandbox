@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,20 +32,25 @@ namespace Sandbox.Serializer
 
         private sealed class Binder : SerializationBinder
         {
-            private readonly string _pubKey;
+            private readonly string pubKey;
+            private readonly Dictionary< Tuple< string, string >, Type > types = new Dictionary< Tuple< string, string >, Type >();
 
             public Binder()
             {
-                _pubKey = GetType().Assembly.FullName.Split( '=' ).Last();
+                pubKey = GetType().Assembly.FullName.Split( '=' ).Last();
             }
 
             public override Type BindToType( string assemblyName, string typeName )
             {
-                if ( assemblyName.EndsWith( _pubKey, StringComparison.Ordinal ) )
-                    return Assembly.GetExecutingAssembly().GetType( typeName );
+                var key = Tuple.Create( assemblyName, typeName );
+                if ( types.ContainsKey( key ) )
+                    return types[ key ];
+
+                if ( assemblyName.EndsWith( pubKey, StringComparison.Ordinal ) )
+                    return types[ key ] = Assembly.GetExecutingAssembly().GetType( typeName );
 
                 var assembly = Assembly.Load( assemblyName );
-                return FormatterServices.GetTypeFromAssembly( assembly, typeName );
+                return types[ key ] = FormatterServices.GetTypeFromAssembly( assembly, typeName );
             }
         }
     }
