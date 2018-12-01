@@ -14,12 +14,12 @@ namespace Sandbox.InvocationHandlers
     {
         public MethodCallHandler( IObservable< Message > messagesObservable, IPublisher< Message > messagePublisher )
         {
-            _messagesObservable = messagesObservable;
+            _callResultAwaiter = messagesObservable.OfType< MethodCallResultAnswer >().Take( 1 );
             _messagePublisher = messagePublisher;
         }
 
         private readonly IPublisher< Message > _messagePublisher;
-        private readonly IObservable< Message > _messagesObservable;
+        private readonly IObservable< MethodCallResultAnswer > _callResultAwaiter;
         private readonly Dictionary< string, MethodInfo > clientCache = new Dictionary< string, MethodInfo >();
         private readonly Dictionary< MethodBase, string > serverCache = new Dictionary< MethodBase, string >();
 
@@ -29,7 +29,7 @@ namespace Sandbox.InvocationHandlers
                 methodId = serverCache[ mcm.MethodBase ] = Guid.NewGuid().ToString();
             var methodCallCommand = new MethodCallCommand( mcm.MethodName, mcm.Args, methodId );
 
-            var task = _messagesObservable.OfType< MethodCallResultAnswer >().Take( 1 ).Where( it => it.AnswerTo == methodCallCommand.Number ).ToTask();
+            var task = _callResultAwaiter.Where( it => it.AnswerTo == methodCallCommand.Number ).ToTask();
             _messagePublisher.Publish( methodCallCommand );
             var result = task.Result;
             if ( result == null )

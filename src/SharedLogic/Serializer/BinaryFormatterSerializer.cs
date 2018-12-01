@@ -42,15 +42,14 @@ namespace Sandbox.Serializer
 
             public override Type BindToType( string assemblyName, string typeName )
             {
+                if ( !assemblyName.EndsWith( pubKey, StringComparison.Ordinal ) )
+                    return null;
+
                 var key = Tuple.Create( assemblyName, typeName );
-                if ( types.ContainsKey( key ) )
-                    return types[ key ];
+                if ( types.TryGetValue( key, out var type ) )
+                    return type;
 
-                if ( assemblyName.EndsWith( pubKey, StringComparison.Ordinal ) )
-                    return types[ key ] = Assembly.GetExecutingAssembly().GetType( typeName );
-
-                var assembly = Assembly.Load( assemblyName );
-                return types[ key ] = FormatterServices.GetTypeFromAssembly( assembly, typeName );
+                return types[ key ] = Assembly.GetExecutingAssembly().GetType( typeName );
             }
         }
     }
