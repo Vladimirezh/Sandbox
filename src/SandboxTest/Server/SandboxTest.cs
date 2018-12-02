@@ -26,7 +26,7 @@ namespace SandboxTest.Server
         {
             var publisher = new Mock< IPublisher< Message > >();
             new Sandbox< ITestClass, TestClass >( Mock.Of< IObservable< Message > >(), publisher.Object );
-            publisher.Verify( it => it.Publish( It.Is< CreateObjectOfTypeCommad >( c => c.AssemblyPath == typeof( TestClass ).Assembly.Location && c.TypeFullName == typeof( TestClass ).FullName ) ) );
+            publisher.Verify( it => it.Publish( It.Is< CreateObjectOfTypeCommand >( c => c.AssemblyPath == typeof( TestClass ).Assembly.Location && c.TypeFullName == typeof( TestClass ).FullName ) ) );
         }
 
         [Fact]

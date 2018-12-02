@@ -17,7 +17,7 @@ namespace Sandbox.Client
         }
 
         private readonly string _address;
-        private ISerializer _serializer = new BinaryFormatterSerializer();
+        private ISerializer _serializer = new ManualBinarySerializer();
         private PublishedMessagesFormatter _publisher;
         private IObservable< Message > _messages;
         private ITerminatePolicy _terminatePolicy = new ExitPolicy();

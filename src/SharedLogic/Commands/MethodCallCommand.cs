@@ -6,11 +6,12 @@ namespace Sandbox.Commands
     [Serializable]
     public class MethodCallCommand : Message
     {
-        public MethodCallCommand( string methodName, object[] arguments, string methodId )
+        public MethodCallCommand()
         {
-            MethodName = Guard.NotNullOrEmpty( methodName, nameof( methodName ) );
-            Arguments = arguments;
-            MethodId = methodId;
+        }
+
+        public MethodCallCommand( int number ) : base( number )
+        {
         }
 
         public string MethodId { get; set; }

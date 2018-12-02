@@ -16,12 +16,11 @@ namespace SandboxTest.Serializer
             CheckSerialization( serializer, new AssemblyResolveAnswer() );
             CheckSerialization( serializer, new AssemblyResolveMessage() );
             const string notEmptyString = "test";
-            CheckSerialization( serializer, new CreateObjectOfTypeCommad( notEmptyString, notEmptyString ) );
-            CheckSerialization( serializer, new MethodCallCommand( notEmptyString, new object[ 0 ], Guid.NewGuid().ToString() ) );
+            CheckSerialization( serializer, new CreateObjectOfTypeCommand { AssemblyPath = notEmptyString, TypeFullName = notEmptyString } );
+            CheckSerialization( serializer, new MethodCallCommand { MethodName = notEmptyString, Arguments = new object[ 0 ], MethodId = Guid.NewGuid().ToString() } );
             CheckSerialization( serializer, new MethodCallResultAnswer() );
             CheckSerialization( serializer, new TerminateCommand() );
             CheckSerialization( serializer, new UnexpectedExceptionMessage() );
-            CheckSerialization( serializer, new EventCommand() );
             CheckSerialization( serializer, new SubscribeToEventCommand() );
             CheckSerialization( serializer, new UnsubscribeFromEventCommand() );
             CheckSerialization( serializer, new EventInvokeCommand() );

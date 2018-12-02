@@ -5,6 +5,14 @@ namespace Sandbox.Commands
     [Serializable]
     public class EventInvokeCommand : EventCommand
     {
-        public object[] Args { get; set; }
+        public EventInvokeCommand()
+        {
+        }
+
+        public EventInvokeCommand( int number ) : base( number )
+        {
+        }
+
+        public object[] Arguments { get; set; }
     }
 }

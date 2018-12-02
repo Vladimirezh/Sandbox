@@ -41,7 +41,7 @@ namespace Sandbox.Client
         {
             switch ( message )
             {
-                case CreateObjectOfTypeCommad co:
+                case CreateObjectOfTypeCommand co:
                     var type = Assembly.LoadFile( co.AssemblyPath ).GetType( co.TypeFullName );
                     _instance = Activator.CreateInstance( type );
                     _callHandler = CallHandler.CreateHandlerFor( type, _messages, _publisher );

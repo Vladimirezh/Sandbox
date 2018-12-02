@@ -27,7 +27,7 @@ namespace Sandbox.InvocationHandlers
         {
             if ( !serverCache.TryGetValue( mcm.MethodBase, out var methodId ) )
                 methodId = serverCache[ mcm.MethodBase ] = Guid.NewGuid().ToString();
-            var methodCallCommand = new MethodCallCommand( mcm.MethodName, mcm.Args, methodId );
+            var methodCallCommand = new MethodCallCommand { MethodName = mcm.MethodName, Arguments = mcm.Args, MethodId = methodId };
 
             var task = _callResultAwaiter.Where( it => it.AnswerTo == methodCallCommand.Number ).ToTask();
             _messagePublisher.Publish( methodCallCommand );

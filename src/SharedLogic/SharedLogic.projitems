@@ -14,7 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Client\SandboxClientBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AssemblyResolveAnswer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AssemblyResolveMessage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Commands\CreateObjectOfTypeCommad.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\CreateObjectOfTypeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\EventCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\EventInvokeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\Message.cs" />
@@ -40,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)NamedPipeServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serializer\BinaryFormatterSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serializer\ISerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\ManualBinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)InvocationHandlers\Handlers\CallHandler.cs" />

@@ -3,8 +3,16 @@
 namespace Sandbox.Commands
 {
     [Serializable]
-    public class EventCommand : Message
+    public abstract class EventCommand : Message
     {
+        protected EventCommand()
+        {
+        }
+
+        protected EventCommand( int number ) : base( number )
+        {
+        }
+
         public string EventName { get; set; }
     }
 }

@@ -72,7 +72,7 @@ namespace SandboxTest.InvocationHandler
         {
             var args = new object[] { "sender", new EventArgs() };
             var result = Assert.Raises< EventArgs >( h => instance.EventWithHandler += h, h => instance.EventWithHandler -= h,
-                () => _callHandler.HandleMessage( null, new EventInvokeCommand { EventName = nameof( ITestClass.EventWithHandler ), Args = args } ) );
+                () => _callHandler.HandleMessage( null, new EventInvokeCommand { EventName = nameof( ITestClass.EventWithHandler ), Arguments = args } ) );
             Assert.Equal( args[ 0 ], result.Sender );
             Assert.Equal( args[ 1 ], result.Arguments );
         }

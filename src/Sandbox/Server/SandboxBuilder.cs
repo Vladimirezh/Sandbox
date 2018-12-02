@@ -14,7 +14,7 @@ namespace Sandbox.Server
         private string _address = Guid.NewGuid().ToString();
         private Platform clientPlatform;
         private bool createClient;
-        private ISerializer _serializer = new BinaryFormatterSerializer();
+        private ISerializer _serializer = new ManualBinarySerializer();
         private string _fileName = Path.GetTempFileName();
 
         public SandboxBuilder WithSerializer( ISerializer serializer )

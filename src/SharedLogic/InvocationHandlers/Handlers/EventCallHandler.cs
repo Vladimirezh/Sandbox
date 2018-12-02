@@ -79,7 +79,7 @@ namespace Sandbox.InvocationHandlers
                     using ( _locker.Lock() )
                         invokeList = _events[ eic.EventName ].ToList();
 
-                    invokeList.ForEach( it => it.DynamicInvoke( eic.Args ) );
+                    invokeList.ForEach( it => it.DynamicInvoke( eic.Arguments ) );
                     break;
                 default:
 
@@ -90,7 +90,7 @@ namespace Sandbox.InvocationHandlers
 
         private void EventHandler( string eventName, object[] args )
         {
-            _messagePublisher.Publish( new EventInvokeCommand { EventName = eventName, Args = args } );
+            _messagePublisher.Publish( new EventInvokeCommand { EventName = eventName, Arguments = args } );
         }
     }
 }

@@ -10,14 +10,19 @@ namespace Sandbox.Commands
 
         public Message()
         {
-            number = Interlocked.Increment( ref messageNumber );
+            _number = Interlocked.Increment( ref messageNumber );
         }
 
-        private volatile int number;
+        public Message( int number )
+        {
+            _number = number;
+        }
+
+        private volatile int _number;
 
         public int Number
         {
-            get => number;
+            get => _number;
         }
     }
 }
