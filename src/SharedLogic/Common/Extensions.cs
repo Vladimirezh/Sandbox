@@ -46,9 +46,8 @@ namespace Sandbox.Common
             using ( var ms = new MemoryStream() )
             {
                 formatter.Serialize( ms, obj );
-                var bytes = ms.ToArray();
-                stream.WriteInt( bytes.Length );
-                stream.Write( bytes, 0, bytes.Length );
+                stream.WriteInt( ( int ) ms.Position );
+                ms.WriteTo( stream );
             }
         }
 
@@ -73,14 +72,7 @@ namespace Sandbox.Common
         public static object ReadObject( this MemoryStream stream, BinaryFormatter formatter )
         {
             var length = stream.ReadInt();
-            if ( length == 0 )
-                return null;
-            var bytes = new byte[ length ];
-            stream.Read( bytes, 0, length );
-            using ( var ms = new MemoryStream( bytes ) )
-            {
-                return formatter.Deserialize( ms );
-            }
+            return length == 0 ? null : formatter.Deserialize( stream );
         }
     }
 }
