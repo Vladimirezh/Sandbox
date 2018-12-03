@@ -37,10 +37,11 @@ namespace Sandbox.Server
 
         public void Dispose()
         {
-            _messagePublisher.Publish( new TerminateCommand() );
-            _disposeHandlers.Dispose();
-            _exceptionHandlerSubject?.Dispose();
             _commandsSubscription?.Dispose();
+            _exceptionHandlerSubject?.Dispose();
+            _disposeHandlers.Dispose();
+            _onProcessEnded.OnNext( Unit.Default );
+            _onProcessEnded.OnCompleted();
         }
 
         public void AddDisposeHandler( IDisposable disposable )
@@ -60,10 +61,7 @@ namespace Sandbox.Server
                     var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault( a => a.FullName == arm.RequestingAssemblyFullName );
                     _messagePublisher.Publish( new AssemblyResolveAnswer { Handled = assembly != null, Location = assembly?.Location, AnswerTo = it.Number } );
                     if ( assembly == null )
-                    {
-                        _messagePublisher.Publish( new TerminateCommand() );
                         _exceptionHandlerSubject.OnNext( new CantResolveAssemblyException( arm.RequestingAssemblyFullName, arm.Name ) );
-                    }
 
                     _commandsSubscription?.Dispose();
 

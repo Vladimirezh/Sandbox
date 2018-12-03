@@ -27,9 +27,12 @@ namespace Sandbox.Common
             stream.Write( bytes, 0, bytes.Length );
         }
 
-        public static void WriteInt( this MemoryStream stream, int i )
+        public static void WriteInt( this MemoryStream stream, int number )
         {
-            stream.Write( BitConverter.GetBytes( i ), 0, sizeof( int ) );
+            stream.WriteByte( ( byte ) number );
+            stream.WriteByte( ( byte ) ( number >> 8 ) );
+            stream.WriteByte( ( byte ) ( number >> 16 ) );
+            stream.WriteByte( ( byte ) ( number >> 24 ) );
         }
 
         public static void WriteObject( this MemoryStream stream, BinaryFormatter formatter, object obj )
@@ -51,9 +54,7 @@ namespace Sandbox.Common
 
         public static int ReadInt( this MemoryStream stream )
         {
-            var bytes = new byte[ sizeof( int ) ];
-            stream.Read( bytes, 0, bytes.Length );
-            return BitConverter.ToInt32( bytes, 0 );
+            return stream.ReadByte() | stream.ReadByte() << 8 | stream.ReadByte() << 16 | stream.ReadByte() << 24;
         }
 
         public static bool ReadBool( this MemoryStream stream )
@@ -77,7 +78,9 @@ namespace Sandbox.Common
             var bytes = new byte[ length ];
             stream.Read( bytes, 0, length );
             using ( var ms = new MemoryStream( bytes ) )
+            {
                 return formatter.Deserialize( ms );
+            }
         }
     }
 }

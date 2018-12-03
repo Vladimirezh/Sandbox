@@ -19,7 +19,6 @@ namespace SandboxTest.Serializer
             CheckSerialization( serializer, new CreateObjectOfTypeCommand { AssemblyPath = notEmptyString, TypeFullName = notEmptyString } );
             CheckSerialization( serializer, new MethodCallCommand { MethodName = notEmptyString, Arguments = new object[ 0 ], MethodId = Guid.NewGuid().ToString() } );
             CheckSerialization( serializer, new MethodCallResultAnswer() );
-            CheckSerialization( serializer, new TerminateCommand() );
             CheckSerialization( serializer, new UnexpectedExceptionMessage() );
             CheckSerialization( serializer, new SubscribeToEventCommand() );
             CheckSerialization( serializer, new UnsubscribeFromEventCommand() );

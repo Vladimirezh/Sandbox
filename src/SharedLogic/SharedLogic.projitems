@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MethodCallCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MethodCallResultAnswer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\SubscribeToEventCommand.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Commands\TerminateCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\UnexpectedExceptionMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\UnsubscribeFromEventCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\CantResolveAssemblyException.cs" />

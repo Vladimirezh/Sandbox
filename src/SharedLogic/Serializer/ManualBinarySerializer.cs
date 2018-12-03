@@ -63,17 +63,13 @@ namespace Sandbox.Serializer
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.EventName );
                         break;
-                    case TerminateCommand msg:
-                        stream.WriteByte( 8 );
-                        stream.WriteInt( msg.Number );
-                        break;
                     case UnexpectedExceptionMessage msg:
-                        stream.WriteByte( 9 );
+                        stream.WriteByte( 8 );
                         stream.WriteInt( msg.Number );
                         stream.WriteObject( _formatter, msg.Exception );
                         break;
                     case UnsubscribeFromEventCommand msg:
-                        stream.WriteByte( 10 );
+                        stream.WriteByte( 9 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.EventName );
                         break;
@@ -133,11 +129,8 @@ namespace Sandbox.Serializer
                         subscribeToEventCommand.EventName = stream.ReadString();
                         return subscribeToEventCommand;
                     case 8:
-                        return new TerminateCommand( stream.ReadInt() );
-
-                    case 9:
                         return new UnexpectedExceptionMessage( stream.ReadInt() ) { Exception = ( Exception ) stream.ReadObject( _formatter ) };
-                    case 10:
+                    case 9:
                         return new UnsubscribeFromEventCommand( stream.ReadInt() ) { EventName = stream.ReadString() };
 
                     default:

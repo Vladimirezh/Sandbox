@@ -30,8 +30,9 @@ namespace ConsolePlayground
                 calc.Instance.ActionCalcArg -= InstanceOnActionCalcArg;
                 CallInstance( calc );
 
-                Console.ReadKey();
+               // Console.ReadKey();
             }
+            Console.ReadKey();
         }
 
         private static void InstanceOnActionCalcArg( object sender, CalcArg e )

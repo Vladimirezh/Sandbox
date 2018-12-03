@@ -40,9 +40,6 @@ namespace Sandbox.Client
             _publisher = new PublishedMessagesFormatter( server, _serializer );
             _messages = server.Select( it => _serializer.Deserialize( it ) );
             var client = new SandboxClient( _messages, _publisher );
-
-            client.AddDisposeHandler( _messages.OfType< TerminateCommand >().Subscribe( it => _terminatePolicy.Terminate(), () => _terminatePolicy.Terminate() ) );
-
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
             client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly ) );
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
