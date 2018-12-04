@@ -28,9 +28,10 @@ namespace Sandbox.InvocationHandlers
                 var eventName = mcm.GetEventName();
                 using ( _locker.Lock() )
                 {
-                    if ( _events[ eventName ].Count == 0 )
+                    var delegates = _events[ eventName ];
+                    if ( delegates.Count == 0 )
                         _messagePublisher.Publish( new SubscribeToEventCommand { EventName = eventName } );
-                    _events[ eventName ].Add( ( Delegate ) mcm.Args[ 0 ] );
+                    delegates.Add( ( Delegate ) mcm.Args[ 0 ] );
                 }
             }
             else if ( mcm.IsUnsubscribeFromEvent() )
@@ -38,8 +39,8 @@ namespace Sandbox.InvocationHandlers
                 var eventName = mcm.GetEventName();
                 using ( _locker.Lock() )
                 {
-                    _events[ eventName ].Remove( ( Delegate ) mcm.Args[ 0 ] );
-                    if ( _events[ eventName ].Count == 0 )
+                    var delegates = _events[ eventName ];
+                    if ( delegates.Remove( ( Delegate ) mcm.Args[ 0 ] ) && delegates.Count == 0 )
                         _messagePublisher.Publish( new UnsubscribeFromEventCommand { EventName = eventName } );
                 }
             }
@@ -67,9 +68,13 @@ namespace Sandbox.InvocationHandlers
                     using ( _locker.Lock() )
                     {
                         var eventInfo = instance.GetType().GetEvent( uec.EventName );
-                        var del = _events[ uec.EventName ][ 0 ];
-                        _events[ uec.EventName ].Remove( del );
-                        eventInfo.RemoveEventHandler( instance, del );
+                        var delegates = _events[ uec.EventName ];
+                        if ( delegates.Count > 0 )
+                        {
+                            var del = delegates[ 0 ];
+                            delegates.Remove( del );
+                            eventInfo.RemoveEventHandler( instance, del );
+                        }
                     }
 
                     break;
