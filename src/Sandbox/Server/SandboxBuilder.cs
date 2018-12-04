@@ -1,44 +1,31 @@
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Sandbox.Common;
 using Sandbox.Serializer;
+using Sandbox.Server.ClientTemplates;
 
 namespace Sandbox.Server
 {
-    public class SandboxBuilder
+    public sealed class SandboxBuilder
     {
         private string _address = Guid.NewGuid().ToString();
-        private Platform clientPlatform;
-        private bool createClient;
         private ISerializer _serializer = new ManualBinarySerializer();
-        private string _fileName = Path.GetTempFileName();
+
+        private readonly IClientTemplate _template;
+
+        public SandboxBuilder( IClientTemplate template )
+        {
+            _template = Guard.NotNull( template );
+        }
+
+        public SandboxBuilder( Platform platform ) : this( new TempTemplate( platform ) )
+        {
+        }
 
         public SandboxBuilder WithSerializer( ISerializer serializer )
         {
             _serializer = Guard.NotNull( serializer );
-            return this;
-        }
-
-        public SandboxBuilder WithFileName( string fileName )
-        {
-            _fileName = Guard.NotNullOrEmpty( fileName, nameof( fileName ) );
-            return this;
-        }
-
-        public SandboxBuilder WithClient( Platform platform )
-        {
-            createClient = true;
-            clientPlatform = platform;
-            return this;
-        }
-
-        public SandboxBuilder WithoutClient()
-        {
-            createClient = false;
             return this;
         }
 
@@ -54,54 +41,9 @@ namespace Sandbox.Server
 
             var server = new NamedPipeServer( new NamedPipedServerFactory(), _address );
             var sandbox = new Sandbox< TInterface, TObject >( server.Select( it => _serializer.Deserialize( it ) ), new PublishedMessagesFormatter( server, _serializer ) );
-            if ( createClient )
-            {
-                sandbox.AddDisposeHandler( CreateAndRunClient() );
-                sandbox.AddDisposeHandler( Disposable.Create( DeleteClientFile ) );
-            }
+            sandbox.AddDisposeHandler( _template.Run( _address ) ?? Disposable.Empty );
 
             return sandbox;
-        }
-
-        private void DeleteClientFile()
-        {
-            try
-            {
-                Process.Start( new ProcessStartInfo { Arguments = "/C choice /C Y /N /D Y /T 3 & Del \"" + _fileName + "\"", WindowStyle = ProcessWindowStyle.Hidden, CreateNoWindow = true, FileName = "cmd.exe" } );
-            }
-            catch
-            {
-            }
-        }
-
-        private Job.Job CreateAndRunClient()
-        {
-            switch ( clientPlatform )
-            {
-                case Platform.x86:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClient );
-                    break;
-                case Platform.x64:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClientx64 );
-                    break;
-                case Platform.AnyCPU:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClientAnyCPU );
-                    break;
-            }
-
-            var job = new Job.Job();
-
-            var si = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = $"\"{_address}\" \"{Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location )}\"",
-                FileName = _fileName,
-                WorkingDirectory = Environment.CurrentDirectory
-            };
-            job.AddProcess( Process.Start( si ).Handle );
-            return job;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ConsolePlayground
         {
             Console.WriteLine( "Running" );
 
-            using ( var calc = new SandboxBuilder().WithClient( Platform.x86 ).Build< ICalculator, Calculator >() )
+            using ( var calc = new SandboxBuilder( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
                 calc.OnProcessEnded.Subscribe( it => Console.WriteLine( "Proccess ended" ) );
@@ -30,8 +30,9 @@ namespace ConsolePlayground
                 calc.Instance.ActionCalcArg -= InstanceOnActionCalcArg;
                 CallInstance( calc );
 
-               // Console.ReadKey();
+                // Console.ReadKey();
             }
+
             Console.ReadKey();
         }
 
