@@ -46,7 +46,7 @@ For example, you have Calculator class and ICalculator interface
 ```
 Now, run it in Sandbox and call methods
 ```
-var calcSandbox = new SandboxBuilder().WithClient(Platform.x86).Build<ICalculator, Calculator>();
+var calcSandbox = new SandboxBuilder( Platform.x86 ).Build< ICalculator, Calculator >();
 calcSandbox.Instance.ActionEvent += () => Console.WriteLine( "ActionEvent" );
 calcSandbox.Instance.Event += ( sender, args ) => Console.WriteLine( $"{sender} {args}" );
 calcSandbox.Instance.Add(10,20);
