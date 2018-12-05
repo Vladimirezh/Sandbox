@@ -107,6 +107,7 @@
       <DependentUpon>Clients.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\ClientGenerator.cs" />
     <Compile Include="Server\ClientTemplates\NopTemplate.cs" />
     <Compile Include="Server\ClientTemplates\TempTemplate.cs" />
     <Compile Include="Server\Job\Job.cs" />
