@@ -30,7 +30,7 @@ namespace Sandbox.Server.ClientTemplates
 
         private void CreateFile()
         {
-            new ClientGenerator( _platform, _fileName ,true);
+            new ClientGenerator( _platform, _fileName, true );
         }
 
         public void Dispose()

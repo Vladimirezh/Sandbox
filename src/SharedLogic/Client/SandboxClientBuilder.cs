@@ -46,6 +46,8 @@ namespace Sandbox.Client
             client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException ) );
             return client;
         }
+        
+        
 
         private void CurrentDomainOnUnhandledException( object sender, UnhandledExceptionEventArgs e )
         {

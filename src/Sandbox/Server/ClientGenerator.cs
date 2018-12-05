@@ -11,7 +11,7 @@ namespace Sandbox.Server
     public sealed class ClientGenerator
     {
         private const string ClientCode =
-            "using System.Reflection;using Sandbox.Client;using System;using System.IO;{0}namespace SandboxClient{{ public static class Program {{ private static void Main( string[] args ) {{ var _libFolder = @\"{1}\"; AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => {{ var path = Path.Combine( _libFolder, e.Name.Split( \',\' )[ 0 ] + \".dll\" ); return File.Exists( path ) ? Assembly.LoadFile( path ) : null; }}; using ( new SandboxClientBuilder( args[ 0 ] ).Build() ) Console.ReadKey(); }} }}}} ";
+            "using System.Threading;using System.Reflection;using Sandbox.Client;using System;using System.IO;{0}namespace SandboxClient{{ public static class Program {{ private static void Main( string[] args ) {{ var _libFolder = @\"{1}\"; AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => {{ var name = new AssemblyName( e.Name ).Name;var path = Path.Combine( _libFolder, name + \".dll\" );if ( File.Exists( path ) )return Assembly.LoadFile( path );path = Path.Combine( _libFolder, name + \".exe\" );return File.Exists( path ) ? Assembly.LoadFile( path ) : null; }};  using ( var mre = new ManualResetEvent( false ) ) using ( (( SandboxClientBuilder)Activator.CreateInstance( Assembly.LoadFile( @\"{2}\" ).GetType( \"Sandbox.Client.SandboxClientBuilder\" ), args[ 0 ])).Build() )  mre.WaitOne(); }} }}}} ";
 
         public ClientGenerator( Platform platform, string fileName, bool sign = false )
         {
@@ -25,7 +25,8 @@ namespace Sandbox.Server
 
             try
             {
-                var sources = string.Format( ClientCode, sign ? $"[assembly: AssemblyKeyFile( @\"{snkFilePath}\" )]\r\n" : string.Empty, Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location ) );
+                var sources = string.Format( ClientCode, sign ? $"[assembly: AssemblyKeyFile( @\"{snkFilePath}\" )]\r\n" : string.Empty, Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location ),
+                    GetType().Assembly.Location );
 
                 using ( var provider = new CSharpCodeProvider() )
                 {
@@ -37,7 +38,7 @@ namespace Sandbox.Server
                     cp.OutputAssembly = fileName;
                     cp.GenerateInMemory = false;
 
-                    cp.CompilerOptions = string.Format( CultureInfo.InvariantCulture, " /t:winexe /errorreport:none  /nowarn:1607  /o+ /checked- /platform:{0} ", platform.ToString().ToLower() );
+                    cp.CompilerOptions = string.Format( CultureInfo.InvariantCulture, " /optimize /t:winexe /errorreport:none  /nowarn:1607  /o+ /checked- /platform:{0} ", platform.ToString().ToLower() );
                     var compilerResults = provider.CompileAssemblyFromSource( cp, sources );
 
                     if ( compilerResults.Errors.Count <= 0 )
