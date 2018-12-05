@@ -20,35 +20,17 @@ namespace Sandbox.Server.ClientTemplates
             CreateFile();
         }
 
-        public Template( Platform platform, string fileName )
+        public Template( Platform platform, string fileName ) : this( platform, fileName, Environment.CurrentDirectory )
         {
-            _platform = platform;
-            _fileName = fileName;
-            _fileName = Guard.NotNullOrEmpty( fileName, nameof( fileName ) );
-            CreateFile();
         }
 
-        public Template( Platform platform )
+        public Template( Platform platform ) : this( platform, Path.GetTempFileName() )
         {
-            _platform = platform;
-            _fileName = Path.GetTempFileName();
-            CreateFile();
         }
 
         private void CreateFile()
         {
-            switch ( _platform )
-            {
-                case Platform.x86:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClient );
-                    break;
-                case Platform.x64:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClientx64 );
-                    break;
-                case Platform.AnyCPU:
-                    File.WriteAllBytes( _fileName, Clients.SandboxClientAnyCPU );
-                    break;
-            }
+            new ClientGenerator( _platform, _fileName ,true);
         }
 
         public void Dispose()
@@ -73,7 +55,7 @@ namespace Sandbox.Server.ClientTemplates
                 WindowStyle = ProcessWindowStyle.Hidden,
                 Arguments = $"\"{address}\" \"{Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location )}\"",
                 FileName = _fileName,
-                WorkingDirectory = _workingDirectory ?? Environment.CurrentDirectory
+                WorkingDirectory = _workingDirectory
             };
             job.AddProcess( Process.Start( si ).Handle );
             return job;

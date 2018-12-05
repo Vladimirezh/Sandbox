@@ -63,29 +63,9 @@ namespace Sandbox {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] SandboxClient {
+        internal static byte[] Sandbox {
             get {
-                object obj = ResourceManager.GetObject("SandboxClient", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] SandboxClientAnyCPU {
-            get {
-                object obj = ResourceManager.GetObject("SandboxClientAnyCPU", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] SandboxClientx64 {
-            get {
-                object obj = ResourceManager.GetObject("SandboxClientx64", resourceCulture);
+                object obj = ResourceManager.GetObject("Sandbox", resourceCulture);
                 return ((byte[])(obj));
             }
         }
