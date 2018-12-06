@@ -11,10 +11,7 @@ namespace Sandbox.Server
 {
     public static class ClientGenerator
     {
-        private const string ClientCode =
-            "using System.Threading;using System.Reflection;using System;using System.IO;{0}namespace SandboxClient{{ public static class Program {{ private static void Main( string[] args ) {{ var _libFolder = @\"{1}\"; AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) => {{ var name = new AssemblyName( e.Name ).Name;var path = Path.Combine( _libFolder, name + \".dll\" );if ( File.Exists( path ) )return Assembly.LoadFile( path );path = Path.Combine( _libFolder, name + \".exe\" );return File.Exists( path ) ? Assembly.LoadFile( path ) : null; }};   var type = Assembly.LoadFile( @\"{2}\" ).GetType( @\"{3}\" );using ( var mre = new ManualResetEvent( false ) ) using ( ( Activator.CreateInstance( type, args[ 0 ] ) as dynamic ).Build() )  mre.WaitOne(); }} }}}} ";
-
-        public static void CreateClient( Platform platform, string fileName, bool sign = false )
+        public static void CreateClient( Platform platform, string fileName, bool sign )
         {
             var snkFilePath = string.Empty;
 
@@ -26,8 +23,8 @@ namespace Sandbox.Server
 
             try
             {
-                var sources = string.Format( ClientCode, sign ? $"[assembly: AssemblyKeyFile( @\"{snkFilePath}\" )]\r\n" : string.Empty, Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location ),
-                    typeof( SandboxClientBuilder ).Assembly.Location, typeof( SandboxClientBuilder ).FullName );
+                var sources = string.Format( Resources.ClientCode, sign ? $"[assembly: AssemblyKeyFile( @\"{snkFilePath}\" )]\r\n" : string.Empty, Path.GetDirectoryName( typeof( SandboxClientBuilder ).Assembly.Location ),
+                    Path.GetDirectoryName( typeof( EventLoopScheduler ).Assembly.Location ), typeof( SandboxClientBuilder ).Assembly.Location, typeof( SandboxClientBuilder ).FullName );
 
                 using ( var provider = new CSharpCodeProvider() )
                 {

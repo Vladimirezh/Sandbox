@@ -61,6 +61,33 @@ namespace Sandbox {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to using System.Threading;
+        ///using System.Reflection;
+        ///using System;
+        ///using System.Collections.Concurrent;
+        ///using System.IO;
+        ///using System.Linq;
+        ///
+        ///{0}
+        ///
+        ///namespace SandboxClient
+        ///{{
+        ///    public static class Program
+        ///    {{
+        ///        public static void Main( string[] args )
+        ///        {{
+        ///            var libs = new[] {{ @&quot;{1}&quot;, @&quot;{2}&quot;, Environment.CurrentDirectory }}.Where( it=&gt;!string.IsNullOrEmpty( it ) ).Distinct().ToArray();
+        ///            var cache = new ConcurrentDictionary&lt; string, Assembly &gt;();
+        ///
+        ///           [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ClientCode {
+            get {
+                return ResourceManager.GetString("ClientCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Sandbox {

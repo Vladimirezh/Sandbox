@@ -11,7 +11,7 @@ namespace Sandbox.Server.ClientTemplates
         private readonly string _fileName;
         private readonly string _workingDirectory;
 
-        public Template( Platform platform, string fileName, string workingDirectory, bool withPubKey )
+        public Template( Platform platform, string fileName, string workingDirectory, bool withPubKey = false )
         {
             _fileName = Guard.NotNullOrEmpty( fileName, nameof( fileName ) );
             _workingDirectory = Guard.NotNullOrEmpty( workingDirectory, nameof( workingDirectory ) );

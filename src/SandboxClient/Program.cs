@@ -1,7 +1,9 @@
 ﻿using System.Threading;
 using System.Reflection;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 
 namespace SandboxClient
 {
@@ -10,14 +12,22 @@ namespace SandboxClient
         public static void Main( string[] args )
         {
             const string _libFolder = @"";
+            var libs = new[] { _libFolder, @"", Environment.CurrentDirectory }.Where( it=>!string.IsNullOrEmpty( it ) ).Distinct().ToArray();
+            var cache = new ConcurrentDictionary< string, Assembly >();
+
             AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) =>
                                                        {
+                                                           Assembly assembly;
+                                                           if ( cache.TryGetValue( e.Name, out assembly ) )
+                                                               return assembly;
+
                                                            var name = new AssemblyName( e.Name ).Name;
-                                                           var path = Path.Combine( _libFolder, name + ".dll" );
-                                                           if ( File.Exists( path ) )
-                                                               return Assembly.LoadFile( path );
-                                                           path = Path.Combine( _libFolder, name + ".exe" );
-                                                           return File.Exists( path ) ? Assembly.LoadFile( path ) : null;
+                                                           var path = libs.SelectMany( it => new[] { Path.Combine( it, name + ".dll" ), Path.Combine( it, name + ".dll" ) } ).FirstOrDefault( it => File.Exists( it ) );
+                                                           if ( path == null )
+                                                               return null;
+                                                           assembly = Assembly.LoadFile( path );
+                                                           cache.TryAdd( e.Name, assembly );
+                                                           return assembly;
                                                        };
 
             var type = Assembly.LoadFile( Path.Combine( _libFolder, "Sandbox.dll" ) ).GetType( "Sandbox.Client.SandboxClientBuilder" );
