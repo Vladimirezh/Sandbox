@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Sandbox.Client
+namespace Sandbox.Client.TerminatePolicy
 {
     public class ExitPolicy : ITerminatePolicy
     {
         public void Terminate()
         {
-           Environment.Exit( 0 );
+            Environment.Exit( 0 );
         }
     }
 }

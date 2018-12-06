@@ -8,29 +8,22 @@ namespace Sandbox.Server.ClientTemplates
 {
     public class Template : IClientTemplate, IDisposable
     {
-        private readonly Platform _platform;
         private readonly string _fileName;
         private readonly string _workingDirectory;
 
-        public Template( Platform platform, string fileName, string workingDirectory )
+        public Template( Platform platform, string fileName, string workingDirectory, bool withPubKey )
         {
-            _platform = platform;
             _fileName = Guard.NotNullOrEmpty( fileName, nameof( fileName ) );
             _workingDirectory = Guard.NotNullOrEmpty( workingDirectory, nameof( workingDirectory ) );
-            CreateFile();
+            ClientGenerator.CreateClient( platform, _fileName, withPubKey );
         }
 
-        public Template( Platform platform, string fileName ) : this( platform, fileName, Environment.CurrentDirectory )
+        public Template( Platform platform, string fileName ) : this( platform, fileName, Environment.CurrentDirectory, false )
         {
         }
 
         public Template( Platform platform ) : this( platform, Path.GetTempFileName() )
         {
-        }
-
-        private void CreateFile()
-        {
-            new ClientGenerator( _platform, _fileName, true );
         }
 
         public void Dispose()

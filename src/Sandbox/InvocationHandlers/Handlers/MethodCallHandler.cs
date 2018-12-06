@@ -8,7 +8,7 @@ using System.Runtime.Remoting.Messaging;
 using Sandbox.Commands;
 using Sandbox.Common;
 
-namespace Sandbox.InvocationHandlers
+namespace Sandbox.InvocationHandlers.Handlers
 {
     internal sealed class MethodCallHandler : CallHandler
     {

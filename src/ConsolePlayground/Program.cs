@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using Sandbox.Server;
-using Sandbox.Server.ClientTemplates;
 
 namespace ConsolePlayground
 {
@@ -11,7 +9,7 @@ namespace ConsolePlayground
         {
             Console.WriteLine( "Running" );
 
-            using ( var calc = new SandboxBuilder( Platform.AnyCPU ).WithAddress( "test" ).Build< ICalculator, Calculator >() )
+            using ( var calc = new SandboxBuilder( Platform.x86 ).Build< ICalculator, Calculator >() )
             {
                 calc.UnexpectedExceptionHandler.Subscribe( Console.WriteLine );
                 calc.OnProcessEnded.Subscribe( it => Console.WriteLine( "Proccess ended" ) );

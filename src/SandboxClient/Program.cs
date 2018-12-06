@@ -1,18 +1,15 @@
 ﻿using System.Threading;
 using System.Reflection;
-using Sandbox.Client;
 using System;
 using System.IO;
-
-[assembly: AssemblyKeyFile( @"C:\Users\Home\AppData\Local\Temp\tmpE654.tmp" )]
 
 namespace SandboxClient
 {
     public static class Program
     {
-        private static void Main( string[] args )
+        public static void Main( string[] args )
         {
-            var _libFolder = @"C:\Users\Home\Desktop\Sandbox\src\ConsolePlayground\bin\Debug";
+            const string _libFolder = @"";
             AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) =>
                                                        {
                                                            var name = new AssemblyName( e.Name ).Name;
@@ -22,9 +19,12 @@ namespace SandboxClient
                                                            path = Path.Combine( _libFolder, name + ".exe" );
                                                            return File.Exists( path ) ? Assembly.LoadFile( path ) : null;
                                                        };
+
+            var type = Assembly.LoadFile( Path.Combine( _libFolder, "Sandbox.dll" ) ).GetType( "Sandbox.Client.SandboxClientBuilder" );
+
             using ( var mre = new ManualResetEvent( false ) )
-           // using ( ( ( SandboxClientBuilder ) Activator.CreateInstance( Assembly.LoadFile( "C:\Users\Home\Desktop\Sandbox\src\ConsolePlayground\bin\Debug\Sandbox.dll" ).GetType( "Sandbox.Client.SandboxClientBuilder" ),
-              //  args[ 0 ] ) ).Build() )
+
+            using ( ( Activator.CreateInstance( type, args[ 0 ] ) as dynamic ).Build() )
                 mre.WaitOne();
         }
     }
