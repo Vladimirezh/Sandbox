@@ -1,26 +1,31 @@
-﻿using Sandbox.Client;
+﻿using System.Threading;
+using System.Reflection;
 using System;
 using System.IO;
-using System.Reflection;
 
 namespace SandboxClient
 {
     public static class Program
     {
-        private static string _libFolder;
-
-        private static void Main( string[] args )
+        public static void Main( string[] args )
         {
-            _libFolder = args[ 1 ];
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainOnAssemblyResolveFromLibFolder;
-            using ( new SandboxClientBuilder( args[ 0 ] ).Build() )
-                Console.ReadKey();
-        }
+            const string _libFolder = @"";
+            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) =>
+                                                       {
+                                                           var name = new AssemblyName( e.Name ).Name;
+                                                           var path = Path.Combine( _libFolder, name + ".dll" );
+                                                           if ( File.Exists( path ) )
+                                                               return Assembly.LoadFile( path );
+                                                           path = Path.Combine( _libFolder, name + ".exe" );
+                                                           return File.Exists( path ) ? Assembly.LoadFile( path ) : null;
+                                                       };
 
-        private static Assembly CurrentDomainOnAssemblyResolveFromLibFolder( object sender, ResolveEventArgs args )
-        {
-            var path = Path.Combine( _libFolder, args.Name.Split( ',' )[ 0 ] + ".dll" );
-            return File.Exists( path ) ? Assembly.LoadFile( path ) : null;
+            var type = Assembly.LoadFile( Path.Combine( _libFolder, "Sandbox.dll" ) ).GetType( "Sandbox.Client.SandboxClientBuilder" );
+
+            using ( var mre = new ManualResetEvent( false ) )
+
+            using ( ( Activator.CreateInstance( type, args[ 0 ] ) as dynamic ).Build() )
+                mre.WaitOne();
         }
     }
 }

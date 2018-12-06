@@ -5,9 +5,8 @@ using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using Sandbox.Commands;
 using Sandbox.Common;
-using SharedLogic.InvocationHandlers;
 
-namespace Sandbox.InvocationHandlers
+namespace Sandbox.InvocationHandlers.Handlers
 {
     internal sealed class EventCallHandler : CallHandler
     {

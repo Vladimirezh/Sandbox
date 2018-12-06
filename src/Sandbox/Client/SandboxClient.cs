@@ -4,7 +4,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using Sandbox.Commands;
-using Sandbox.InvocationHandlers;
+using Sandbox.InvocationHandlers.Handlers;
 
 namespace Sandbox.Client
 {

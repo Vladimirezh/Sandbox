@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Client
+﻿namespace Sandbox.Client.TerminatePolicy
 {
     public interface ITerminatePolicy
     {

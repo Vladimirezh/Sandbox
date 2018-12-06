@@ -2,6 +2,7 @@ using System;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using Sandbox.Common;
+using Sandbox.InvocationHandlers.Handlers;
 
 namespace Sandbox.InvocationHandlers
 {

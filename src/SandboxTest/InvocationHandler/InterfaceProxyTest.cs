@@ -5,6 +5,7 @@ using Moq;
 using Sandbox;
 using Sandbox.Commands;
 using Sandbox.InvocationHandlers;
+using Sandbox.InvocationHandlers.Handlers;
 using SandboxTest.Common;
 using SandboxTest.Instances;
 using Xunit;

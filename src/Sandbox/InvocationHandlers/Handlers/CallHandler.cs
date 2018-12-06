@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Remoting.Messaging;
 using Sandbox.Commands;
 
-namespace Sandbox.InvocationHandlers
+namespace Sandbox.InvocationHandlers.Handlers
 {
     public abstract class CallHandler
     {

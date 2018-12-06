@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
 
-namespace SharedLogic.InvocationHandlers
+namespace Sandbox.InvocationHandlers
 {
     internal static class InvocationHandlersExtensions
     {
