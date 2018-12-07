@@ -111,8 +111,6 @@
     <Compile Include="Client\SandboxClientBuilder.cs" />
     <Compile Include="Client\TerminatePolicy\ExitPolicy.cs" />
     <Compile Include="Client\TerminatePolicy\ITerminatePolicy.cs" />
-    <Compile Include="Commands\AssemblyResolveAnswer.cs" />
-    <Compile Include="Commands\AssemblyResolveMessage.cs" />
     <Compile Include="Commands\CreateObjectOfTypeCommand.cs" />
     <Compile Include="Commands\EventCommand.cs" />
     <Compile Include="Commands\EventInvokeCommand.cs" />

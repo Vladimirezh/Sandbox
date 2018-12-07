@@ -16,35 +16,22 @@ namespace Sandbox.Serializer
             {
                 switch ( message )
                 {
-                    case AssemblyResolveAnswer msg:
-                        stream.WriteByte( 1 );
-                        stream.WriteInt( msg.Number );
-                        stream.WriteBool( msg.Handled );
-                        stream.WriteString( msg.Location );
-                        stream.WriteInt( msg.AnswerTo );
-                        break;
-                    case AssemblyResolveMessage msg:
-                        stream.WriteByte( 2 );
-                        stream.WriteInt( msg.Number );
-                        stream.WriteString( msg.Name );
-                        stream.WriteString( msg.RequestingAssemblyFullName );
-                        break;
                     case CreateObjectOfTypeCommand msg:
-                        stream.WriteByte( 3 );
+                        stream.WriteByte( 1 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.AssemblyPath );
                         stream.WriteString( msg.TypeFullName );
                         break;
 
                     case EventInvokeCommand msg:
-                        stream.WriteByte( 4 );
+                        stream.WriteByte( 2 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.EventName );
                         stream.WriteObject( _formatter, msg.Arguments );
 
                         break;
                     case MethodCallCommand msg:
-                        stream.WriteByte( 5 );
+                        stream.WriteByte( 3 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.MethodName );
                         stream.WriteString( msg.MethodId );
@@ -52,24 +39,24 @@ namespace Sandbox.Serializer
 
                         break;
                     case MethodCallResultAnswer msg:
-                        stream.WriteByte( 6 );
+                        stream.WriteByte( 4 );
                         stream.WriteInt( msg.Number );
                         stream.WriteInt( msg.AnswerTo );
                         stream.WriteObject( _formatter, msg.Result );
                         stream.WriteObject( _formatter, msg.Exception );
                         break;
                     case SubscribeToEventCommand msg:
-                        stream.WriteByte( 7 );
+                        stream.WriteByte( 5 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.EventName );
                         break;
                     case UnexpectedExceptionMessage msg:
-                        stream.WriteByte( 8 );
+                        stream.WriteByte( 6 );
                         stream.WriteInt( msg.Number );
                         stream.WriteObject( _formatter, msg.Exception );
                         break;
                     case UnsubscribeFromEventCommand msg:
-                        stream.WriteByte( 9 );
+                        stream.WriteByte( 7 );
                         stream.WriteInt( msg.Number );
                         stream.WriteString( msg.EventName );
                         break;
@@ -88,49 +75,37 @@ namespace Sandbox.Serializer
                 switch ( stream.ReadByte() )
                 {
                     case 1:
-                        var assemblyResolveAnswer = new AssemblyResolveAnswer( stream.ReadInt() );
-                        assemblyResolveAnswer.Handled = stream.ReadBool();
-                        assemblyResolveAnswer.Location = stream.ReadString();
-                        assemblyResolveAnswer.AnswerTo = stream.ReadInt();
-                        return assemblyResolveAnswer;
-
-                    case 2:
-                        var assemblyResolveMessage = new AssemblyResolveMessage( stream.ReadInt() );
-                        assemblyResolveMessage.Name = stream.ReadString();
-                        assemblyResolveMessage.RequestingAssemblyFullName = stream.ReadString();
-                        return assemblyResolveMessage;
-                    case 3:
                         var createObjectOfTypeCommand = new CreateObjectOfTypeCommand( stream.ReadInt() );
                         createObjectOfTypeCommand.AssemblyPath = stream.ReadString();
                         createObjectOfTypeCommand.TypeFullName = stream.ReadString();
                         return createObjectOfTypeCommand;
 
-                    case 4:
+                    case 2:
                         var invokeCommand = new EventInvokeCommand( stream.ReadInt() );
                         invokeCommand.EventName = stream.ReadString();
                         invokeCommand.Arguments = ( object[] ) stream.ReadObject( _formatter );
                         return invokeCommand;
-                    case 5:
+                    case 3:
                         var methodCallCommand = new MethodCallCommand( stream.ReadInt() );
                         methodCallCommand.MethodName = stream.ReadString();
                         methodCallCommand.MethodId = stream.ReadString();
                         methodCallCommand.Arguments = ( object[] ) stream.ReadObject( _formatter );
                         return methodCallCommand;
 
-                    case 6:
+                    case 4:
                         var methodCallResultAnswer = new MethodCallResultAnswer( stream.ReadInt() );
                         methodCallResultAnswer.AnswerTo = stream.ReadInt();
                         methodCallResultAnswer.Result = stream.ReadObject( _formatter );
                         methodCallResultAnswer.Exception = ( Exception ) stream.ReadObject( _formatter );
                         return methodCallResultAnswer;
 
-                    case 7:
+                    case 5:
                         var subscribeToEventCommand = new SubscribeToEventCommand( stream.ReadInt() );
                         subscribeToEventCommand.EventName = stream.ReadString();
                         return subscribeToEventCommand;
-                    case 8:
+                    case 6:
                         return new UnexpectedExceptionMessage( stream.ReadInt() ) { Exception = ( Exception ) stream.ReadObject( _formatter ) };
-                    case 9:
+                    case 7:
                         return new UnsubscribeFromEventCommand( stream.ReadInt() ) { EventName = stream.ReadString() };
 
                     default:

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
@@ -57,17 +56,6 @@ namespace Sandbox.Server
                 case UnexpectedExceptionMessage uem:
                     _exceptionHandlerSubject.OnNext( uem.Exception );
                     break;
-                case AssemblyResolveMessage arm:
-                {
-                    var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault( a => a.FullName == arm.RequestingAssemblyFullName );
-                    _messagePublisher.Publish( new AssemblyResolveAnswer { Handled = assembly != null, Location = assembly?.Location, AnswerTo = it.Number } );
-                    if ( assembly == null )
-                        _exceptionHandlerSubject.OnNext( new CantResolveAssemblyException( arm.RequestingAssemblyFullName, arm.Name ) );
-
-                    _commandsSubscription?.Dispose();
-
-                    break;
-                }
                 default:
                     _callHandler.HandleMessage( Instance, it );
                     break;

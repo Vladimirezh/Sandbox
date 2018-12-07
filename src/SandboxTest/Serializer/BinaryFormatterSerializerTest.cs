@@ -13,8 +13,6 @@ namespace SandboxTest.Serializer
             var serializer = new BinaryFormatterSerializer();
 
             CheckSerialization( serializer, new Message() );
-            CheckSerialization( serializer, new AssemblyResolveAnswer() );
-            CheckSerialization( serializer, new AssemblyResolveMessage() );
             const string notEmptyString = "test";
             CheckSerialization( serializer, new CreateObjectOfTypeCommand { AssemblyPath = notEmptyString, TypeFullName = notEmptyString } );
             CheckSerialization( serializer, new MethodCallCommand { MethodName = notEmptyString, Arguments = new object[ 0 ], MethodId = Guid.NewGuid().ToString() } );

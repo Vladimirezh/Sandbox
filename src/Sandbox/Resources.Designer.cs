@@ -78,8 +78,7 @@ namespace Sandbox {
         ///        {{
         ///            var libs = new[] {{ @&quot;{1}&quot;, @&quot;{2}&quot;, Environment.CurrentDirectory }}.Where( it=&gt;!string.IsNullOrEmpty( it ) ).Distinct().ToArray();
         ///            var cache = new ConcurrentDictionary&lt; string, Assembly &gt;();
-        ///
-        ///           [rest of string was truncated]&quot;;.
+        ///             [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ClientCode {
             get {

@@ -18,7 +18,7 @@ namespace Sandbox.Server.ClientTemplates
             ClientGenerator.CreateClient( platform, _fileName, withPubKey );
         }
 
-        public Template( Platform platform, string fileName ) : this( platform, fileName, Environment.CurrentDirectory, false )
+        public Template( Platform platform, string fileName ) : this( platform, fileName, Environment.CurrentDirectory )
         {
         }
 

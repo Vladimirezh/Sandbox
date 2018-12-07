@@ -1,8 +1,6 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using System.Reflection;
 using Sandbox.Client.TerminatePolicy;
 using Sandbox.Commands;
 using Sandbox.Common;
@@ -41,8 +39,6 @@ namespace Sandbox.Client
             _publisher = new PublishedMessagesFormatter( server, _serializer );
             _messages = server.Select( it => _serializer.Deserialize( it ) );
             var client = new SandboxClient( _messages, _publisher );
-            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-            client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly ) );
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
             client.AddDisposeHandler( Disposable.Create( () => AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException ) );
             return client;
@@ -52,18 +48,6 @@ namespace Sandbox.Client
         {
             _publisher.Publish( new UnexpectedExceptionMessage { Exception = e.ExceptionObject as Exception } );
             _terminatePolicy.Terminate();
-        }
-
-        private Assembly ResolveAssembly( object sender, ResolveEventArgs args )
-        {
-            if ( args.RequestingAssembly == null || _messages == null || _publisher == null )
-                return null;
-
-            var resolveMessage = new AssemblyResolveMessage { RequestingAssemblyFullName = args.RequestingAssembly.FullName, Name = args.Name };
-            var task = _messages.OfType< AssemblyResolveAnswer >().Where( it => it.AnswerTo == resolveMessage.Number ).Take( 1 ).ToTask();
-            _publisher.Publish( resolveMessage );
-            var answer = task.Result;
-            return answer?.Handled == true ? Assembly.LoadFile( answer.Location ) : null;
         }
     }
 }

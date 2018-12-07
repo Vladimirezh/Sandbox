@@ -135,21 +135,22 @@ namespace SandboxClient
         {{
             var libs = new[] {{ @"{1}", @"{2}", Environment.CurrentDirectory }}.Where( it=&gt;!string.IsNullOrEmpty( it ) ).Distinct().ToArray();
             var cache = new ConcurrentDictionary&lt; string, Assembly &gt;();
-
-            AppDomain.CurrentDomain.AssemblyResolve += ( s, e ) =&gt;
-                                                       {{
-                                                           Assembly assembly;
-                                                           if ( cache.TryGetValue( e.Name, out assembly ) )
-                                                               return assembly;
-
-                                                           var name = new AssemblyName( e.Name ).Name;
-                                                           var path = libs.SelectMany( it =&gt; new string[] {{ Path.Combine( it, name + ".dll" ), Path.Combine( it, name + ".exe" ) }} ).FirstOrDefault( it =&gt; File.Exists( it ) );
-                                                           if ( path == null )
-                                                               return null;
-                                                           assembly = Assembly.LoadFile( path );
-                                                           cache.TryAdd( e.Name, assembly );
-                                                           return assembly;
-                                                       }};
+            ResolveEventHandler currentDomainOnAssemblyResolve =( s, e ) =&gt;
+																{{
+																	Assembly assembly;
+																	if ( cache.TryGetValue( e.Name, out assembly ) )
+																		return assembly;
+			
+																	var name = new AssemblyName( e.Name ).Name;
+																	var path = libs.SelectMany( it =&gt; new string[] {{ Path.Combine( it, name + ".dll" ), Path.Combine( it, name + ".exe" ) }} ).FirstOrDefault( it =&gt; File.Exists( it ) );
+																	if ( path == null )
+																		return null;
+																	assembly = Assembly.LoadFile( path );
+																	cache.TryAdd( e.Name, assembly );
+																	return assembly;
+																}};
+            AppDomain.CurrentDomain.AssemblyResolve += currentDomainOnAssemblyResolve;
+			AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += currentDomainOnAssemblyResolve;
 
             var type = Assembly.LoadFile( @"{3}" ).GetType( "{4}" );
 

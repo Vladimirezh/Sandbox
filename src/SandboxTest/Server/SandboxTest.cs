@@ -52,27 +52,5 @@ namespace SandboxTest.Server
             Assert.Single( exceptions );
             Assert.True( exceptions[ 0 ] is TestException );
         }
-
-        [Fact]
-        public void TestRevolveHandledAssemblyMessage()
-        {
-            var publisher = new Mock< IPublisher< Message > >();
-            var messagesObservable = new Subject< Message >();
-            new Sandbox< ITestClass, TestClass >( messagesObservable, publisher.Object );
-            var assemblyResolveMessage = new AssemblyResolveMessage { RequestingAssemblyFullName = GetType().Assembly.FullName };
-            messagesObservable.OnNext( assemblyResolveMessage );
-            publisher.Verify( it => it.Publish( It.Is< AssemblyResolveAnswer >( asa => asa.Handled && asa.AnswerTo == assemblyResolveMessage.Number && asa.Location == GetType().Assembly.Location ) ) );
-        }
-
-        [Fact]
-        public void TestRevolveUnhandledAssemblyMessage()
-        {
-            var publisher = new Mock< IPublisher< Message > >();
-            var messagesObservable = new Subject< Message >();
-            new Sandbox< ITestClass, TestClass >( messagesObservable, publisher.Object );
-            var assemblyResolveMessage = new AssemblyResolveMessage { RequestingAssemblyFullName = "UnknownAssembly" };
-            messagesObservable.OnNext( assemblyResolveMessage );
-            publisher.Verify( it => it.Publish( It.Is< AssemblyResolveAnswer >( asa => !asa.Handled && asa.AnswerTo == assemblyResolveMessage.Number && asa.Location == null ) ) );
-        }
     }
 }
