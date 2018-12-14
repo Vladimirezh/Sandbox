@@ -95,7 +95,7 @@ namespace Sandbox
                 Array.Copy( message, 0, messageToSend, sizeof( int ), message.Length );
                 await stream.WriteAsync( messageToSend, 0, messageToSend.Length, cancellationToken );
             }
-            catch ( TaskCanceledException )
+            catch
             {
             }
         }
